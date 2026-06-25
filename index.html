@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BRIONESIAN Scheduler</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
-    <!-- Three.js import map for the intro animation -->
     <script type="importmap">
         {
             "imports": {
@@ -18,7 +17,6 @@
         }
     </script>
     <style>
-        /* --- CSS Reset & Premium Variables --- */
         :root {
             --bg-base: #090c12;
             --bg-panel: rgba(16, 22, 34, 0.7);
@@ -30,6 +28,7 @@
             --radius: 16px;
             --header-height: 72px;
             --slot-height: 76px;
+            --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         * {
             margin: 0;
@@ -45,6 +44,7 @@
             background-image: radial-gradient(circle at 80% 30%, rgba(0, 212, 255, 0.04) 0%, transparent 40%),
                 radial-gradient(circle at 20% 80%, rgba(179, 136, 255, 0.03) 0%, transparent 40%);
             animation: breathe 15s ease-in-out infinite alternate;
+            will-change: background-position;
         }
         @keyframes breathe {
             0% {
@@ -54,8 +54,6 @@
                 background-position: 100% 100%, 100% 100%;
             }
         }
-
-        /* --- INTRO OVERLAY --- */
         #intro-overlay {
             position: fixed;
             top: 0;
@@ -68,11 +66,12 @@
             justify-content: center;
             align-items: center;
             opacity: 1;
-            transition: opacity 3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 2.8s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: auto;
         }
         #intro-overlay canvas {
             display: block;
+            will-change: transform;
         }
         #white-curtain {
             position: absolute;
@@ -83,18 +82,15 @@
             background: #ffffff;
             z-index: 10;
             pointer-events: none;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
         }
-
-        /* --- Layout --- */
         .app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             backdrop-filter: blur(8px);
+            will-change: transform;
         }
-
-        /* --- Top Nav --- */
         .top-nav {
             display: flex;
             justify-content: space-between;
@@ -132,7 +128,6 @@
             -webkit-text-fill-color: transparent;
             font-size: 24px;
         }
-
         .nav-center {
             display: flex;
             gap: 32px;
@@ -146,7 +141,7 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: color 0.3s var(--transition-smooth), transform 0.3s var(--transition-smooth);
             position: relative;
         }
         .nav-center a:hover,
@@ -154,15 +149,11 @@
             color: var(--text-primary);
             transform: translateY(-1px);
         }
-
-        /* --- Main Body --- */
         .main-body {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-
-        /* --- Left Sidebar --- */
         .sidebar-left {
             width: 240px;
             padding: 24px;
@@ -173,15 +164,16 @@
             background: rgba(9, 12, 18, 0.3);
             overflow-y: auto;
             backdrop-filter: var(--glass-blur);
+            z-index: 5;
+            position: relative;
         }
-
         .create-btn-wrapper {
             display: flex;
             align-items: center;
             gap: 14px;
             margin-bottom: 32px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s var(--transition-smooth);
         }
         .create-btn-wrapper:hover {
             transform: translateX(6px);
@@ -200,6 +192,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-shrink: 0;
         }
         .create-btn-wrapper:hover .create-btn {
             transform: scale(1.1);
@@ -213,7 +206,6 @@
             color: var(--text-secondary);
             letter-spacing: 0.5px;
         }
-
         .calendars-section .section-header {
             display: flex;
             justify-content: space-between;
@@ -227,14 +219,13 @@
         }
         .calendars-section .section-header i {
             cursor: pointer;
-            transition: 0.2s;
+            transition: transform 0.3s var(--transition-smooth), color 0.2s;
             font-size: 12px;
         }
         .calendars-section .section-header i:hover {
             color: white;
             transform: rotate(90deg);
         }
-
         .calendar-list {
             list-style: none;
             display: flex;
@@ -248,11 +239,13 @@
             font-size: 14px;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s var(--transition-smooth);
             padding: 10px 12px;
             border-radius: 10px;
             margin-bottom: 2px;
             border-left: 2px solid transparent;
+            will-change: transform, background;
+            user-select: none;
         }
         .calendar-list li:hover,
         .calendar-list li.active {
@@ -262,10 +255,12 @@
         }
         .calendar-list li.disabled {
             opacity: 0.3;
+            pointer-events: none;
         }
         .calendar-list li i {
             width: 20px;
             font-size: 14px;
+            flex-shrink: 0;
         }
         .calendar-list li.selected-creation {
             background: rgba(255, 255, 255, 0.08);
@@ -277,7 +272,7 @@
             border-radius: 50%;
             margin-left: auto;
             flex-shrink: 0;
-            transition: 0.3s;
+            transition: box-shadow 0.3s;
         }
         .dot.cyan {
             background: var(--cyan);
@@ -287,15 +282,14 @@
             background: #a855f7;
             box-shadow: 0 0 12px #a855f7;
         }
-
-        /* --- Calendar Main Area --- */
         .calendar-main {
             flex: 1;
             padding: 24px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: opacity 0.35s ease, transform 0.35s ease;
+            transition: opacity 0.4s var(--transition-smooth), transform 0.4s var(--transition-smooth);
+            will-change: transform, opacity;
         }
         .calendar-main.hidden {
             position: absolute;
@@ -304,10 +298,9 @@
             width: 100%;
             height: 100%;
             opacity: 0;
-            transform: scale(0.98);
+            transform: scale(0.97);
             pointer-events: none;
         }
-
         .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -323,7 +316,7 @@
         .date-nav i {
             color: var(--text-secondary);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s var(--transition-smooth);
             font-size: 14px;
             padding: 8px;
             border-radius: 8px;
@@ -348,7 +341,7 @@
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s var(--transition-smooth);
             font-weight: 500;
         }
         .date-nav .today-btn:hover {
@@ -370,7 +363,7 @@
         }
         .view-toggle span {
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s var(--transition-smooth);
             padding: 8px 14px;
             border-radius: 8px;
             position: relative;
@@ -383,7 +376,6 @@
             background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-
         .calendar-grid-wrapper {
             flex: 1;
             background: rgba(255, 255, 255, 0.02);
@@ -395,8 +387,8 @@
             position: relative;
             backdrop-filter: blur(4px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            will-change: transform;
         }
-
         .grid-header-row {
             display: flex;
             padding: 16px 0;
@@ -414,15 +406,18 @@
             font-weight: 500;
             color: var(--text-secondary);
             letter-spacing: 0.5px;
+            border-right: 1px solid var(--grid-line);
         }
-
+        .grid-header-row .day-col:last-child {
+            border-right: none;
+        }
         .grid-body {
             display: flex;
             flex: 1;
             overflow-y: auto;
             position: relative;
+            will-change: transform;
         }
-
         .time-col {
             width: 90px;
             flex-shrink: 0;
@@ -446,12 +441,11 @@
             padding: 0;
             margin: 0;
             box-sizing: border-box;
-            transition: 0.2s;
+            transition: background 0.2s;
         }
         .time-slot:last-child {
             border-bottom: none;
         }
-
         .days-row {
             flex: 1;
             display: flex;
@@ -474,7 +468,10 @@
             width: 100%;
             box-sizing: border-box;
             pointer-events: none;
-            transition: 0.2s;
+            transition: background 0.2s;
+        }
+        .bg-line:last-child {
+            border-bottom: none;
         }
         .bg-line.clickable {
             cursor: pointer;
@@ -483,8 +480,6 @@
         .bg-line.clickable:hover {
             background: rgba(255, 255, 255, 0.03);
         }
-
-        /* Current Time Indicator */
         .current-time-indicator {
             position: absolute;
             left: 0;
@@ -496,6 +491,7 @@
             opacity: 0.9;
             box-shadow: 0 0 10px #ff4d4d, 0 0 30px rgba(255, 77, 77, 0.3);
             transition: top 60s linear;
+            will-change: top;
         }
         .current-time-indicator::before {
             content: '';
@@ -518,8 +514,6 @@
             color: #ff4d4d;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-
-        /* Event Styling */
         .event-card {
             position: absolute;
             width: 90%;
@@ -528,7 +522,7 @@
             padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             cursor: grab;
             pointer-events: auto;
             z-index: 2;
@@ -537,6 +531,7 @@
             animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             opacity: 0;
             transform: translateY(10px) scale(0.95);
+            will-change: transform, opacity;
         }
         .event-card:active {
             cursor: grabbing;
@@ -566,19 +561,19 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
         .event-delete {
             position: absolute;
             top: 5px;
             right: 5px;
             font-size: 12px;
             opacity: 0;
-            transition: 0.2s;
+            transition: opacity 0.25s var(--transition-smooth), transform 0.2s;
             color: #ff6b6b;
             background: rgba(0, 0, 0, 0.4);
             padding: 2px 4px;
             border-radius: 4px;
             backdrop-filter: blur(4px);
+            cursor: pointer;
         }
         .event-card:hover .event-delete {
             opacity: 1;
@@ -588,8 +583,6 @@
             color: white;
             background: #ff4d4d;
         }
-
-        /* --- Dashboard View & Routine Fat Bar --- */
         .dashboard-view {
             flex: 1;
             padding: 24px;
@@ -597,9 +590,10 @@
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            transition: opacity 0.35s ease, transform 0.35s ease;
-            transform: scale(0.98);
+            transition: opacity 0.4s var(--transition-smooth), transform 0.4s var(--transition-smooth);
+            transform: scale(0.97);
             opacity: 0;
+            will-change: transform, opacity;
         }
         .dashboard-view.visible {
             display: flex;
@@ -628,7 +622,6 @@
             color: var(--text-secondary);
             font-size: 15px;
         }
-
         .dashboard-section {
             margin-bottom: 32px;
             padding-bottom: 16px;
@@ -644,124 +637,106 @@
             align-items: center;
             gap: 8px;
         }
-
-        .routine-fat-bar {
+        .routine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .routine-card {
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.02));
             border: 1px solid rgba(6, 182, 212, 0.2);
             border-radius: var(--radius);
-            padding: 20px 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            transition: all 0.3s var(--transition-smooth);
             box-shadow: 0 0 20px rgba(6, 182, 212, 0.05);
+            cursor: pointer;
+            will-change: transform, box-shadow;
         }
-        .routine-fat-bar:hover {
+        .routine-card:hover {
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.05));
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: 0 4px 24px rgba(6, 182, 212, 0.15);
             border-color: rgba(6, 182, 212, 0.5);
         }
-        .routine-fat-left {
+        .routine-card-left {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
         }
-        .routine-fat-icon {
-            font-size: 28px;
+        .routine-card-icon {
+            font-size: 24px;
             color: var(--cyan);
         }
-        .routine-fat-title {
+        .routine-card-name {
             font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
         }
-        .routine-fat-sub {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 2px;
+        .routine-card-actions {
+            display: flex;
+            gap: 8px;
         }
-
-        .week-group {
-            margin-bottom: 24px;
+        .routine-card-actions button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
-            border-radius: 8px;
-            padding: 12px;
-            margin-left: -12px;
-            margin-right: -12px;
+            transition: all 0.2s var(--transition-smooth);
         }
-        .week-group:hover {
-            background: rgba(255, 255, 255, 0.02);
-            transform: translateY(-2px);
+        .routine-card-actions button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
         }
-        .week-month-year {
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-            color: var(--text-primary);
+        .routine-card-actions .btn-delete:hover {
+            border-color: #ff4d4d;
+            color: #ff4d4d;
         }
-        .week-range {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-            margin-bottom: 12px;
-        }
-        .week-events {
+        .event-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
-        .dash-event-item {
+        .event-list-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.25s var(--transition-smooth);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.02);
-            border-left: 3px solid transparent;
+            border-left-width: 3px;
+            border-left-style: solid;
+            will-change: transform, background;
         }
-        .dash-event-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-right: 2px;
+        .event-list-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
         }
-        .dash-event-title {
-            font-size: 13px;
-            font-weight: 500;
-            flex: 1;
+        .event-list-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .dash-event-time {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-        .dash-empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-        .dash-empty-state i {
-            font-size: 48px;
-            color: rgba(255, 255, 255, 0.05);
-            margin-bottom: 16px;
-            display: block;
-        }
-        .dash-empty-state h3 {
-            font-size: 18px;
+        .event-list-title {
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 4px;
-            font-weight: 500;
         }
-        .dash-empty-state p {
-            font-size: 14px;
+        .event-list-date {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
-
-        /* --- Routine Modal --- */
-        #routineModal.modal-overlay {
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -774,32 +749,34 @@
             align-items: center;
             z-index: 1000;
             opacity: 0;
-            transition: 0.3s;
+            transition: opacity 0.35s var(--transition-smooth);
         }
-        #routineModal.modal-overlay.active {
+        .modal-overlay.active {
             opacity: 1;
             display: flex;
         }
-        #routineModal .modal-content {
+        .modal-overlay .modal-content {
             background: rgba(20, 26, 40, 0.95);
             padding: 32px;
             border-radius: var(--radius);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 95%;
-            max-width: 1100px;
             color: var(--text-primary);
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(30px);
-            transform: scale(0.9);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        #routineModal .modal-content {
+            width: 95%;
+            max-width: 1100px;
             display: flex;
             flex-direction: column;
             max-height: 90vh;
         }
-        #routineModal.modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-
         #routineModal .modal-header {
             display: flex;
             justify-content: space-between;
@@ -819,7 +796,7 @@
         #routineModal .modal-header i {
             cursor: pointer;
             color: var(--text-secondary);
-            transition: 0.2s;
+            transition: transform 0.3s var(--transition-smooth), color 0.2s;
             font-size: 20px;
         }
         #routineModal .modal-header i:hover {
@@ -835,14 +812,13 @@
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s var(--transition-smooth);
         }
         .routine-modal-edit-btn:hover {
             background: rgba(255, 255, 255, 0.05);
             color: white;
             border-color: rgba(255, 255, 255, 0.2);
         }
-
         #routineContainer {
             overflow-y: auto;
             flex: 1;
@@ -851,7 +827,6 @@
             border-radius: var(--radius);
             background: rgba(255, 255, 255, 0.01);
         }
-
         .routine-table {
             width: 100%;
             border-collapse: collapse;
@@ -875,7 +850,6 @@
         .routine-table th:last-child {
             border-right: none;
         }
-
         .routine-table td {
             padding: 6px;
             border-right: 1px solid var(--grid-line);
@@ -894,7 +868,6 @@
             width: 100px;
             white-space: nowrap;
         }
-
         .routine-table td.cell-empty-readonly {
             color: var(--text-secondary);
             opacity: 0.2;
@@ -903,11 +876,10 @@
             color: var(--text-primary);
             font-weight: 500;
         }
-
         .routine-table td.cell-empty-editable {
             color: var(--text-secondary);
             cursor: pointer;
-            transition: 0.2s;
+            transition: background 0.2s;
             opacity: 0.2;
         }
         .routine-table td.cell-empty-editable:hover {
@@ -920,12 +892,11 @@
             cursor: pointer;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 4px;
-            transition: 0.2s;
+            transition: background 0.2s;
         }
         .routine-table td.cell-filled-editable:hover {
             background: rgba(255, 255, 255, 0.08);
         }
-
         .cell-input {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
@@ -936,8 +907,12 @@
             font-size: 13px;
             outline: none;
             text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-
+        .cell-input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+        }
         .routine-actions {
             display: flex;
             justify-content: flex-end;
@@ -953,7 +928,7 @@
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.25s var(--transition-smooth);
         }
         .routine-btn-secondary:hover {
             background: rgba(255, 255, 255, 0.05);
@@ -962,42 +937,9 @@
         #routineSaveBtn {
             display: none;
         }
-
-        /* --- Tiny Event Modal (Create New Event) --- */
-        #eventModal.modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(16px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        #eventModal.modal-overlay.active {
-            opacity: 1;
-            display: flex;
-        }
         #eventModal .modal-content {
-            background: rgba(20, 26, 40, 0.95);
-            padding: 24px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             width: 350px;
             max-width: 90%;
-            color: var(--text-primary);
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(30px);
-            transform: scale(0.9);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #eventModal.modal-overlay.active .modal-content {
-            transform: scale(1);
         }
         #eventModal .modal-header {
             display: flex;
@@ -1012,14 +954,13 @@
         #eventModal .modal-header i {
             cursor: pointer;
             color: var(--text-secondary);
-            transition: 0.2s;
+            transition: transform 0.3s var(--transition-smooth), color 0.2s;
             font-size: 16px;
         }
         #eventModal .modal-header i:hover {
             color: white;
             transform: rotate(90deg);
         }
-
         #eventModal .form-group {
             margin-bottom: 12px;
         }
@@ -1042,7 +983,8 @@
             color: white;
             font-size: 13px;
             outline: none;
-            transition: 0.2s;
+            transition: border-color 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth),
+                background 0.25s;
         }
         #eventModal .form-group input:focus,
         #eventModal .form-group select:focus {
@@ -1057,7 +999,6 @@
         #eventModal .form-row .form-group {
             flex: 1;
         }
-
         #eventModal .btn-primary {
             width: 100%;
             padding: 10px;
@@ -1068,7 +1009,7 @@
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s var(--transition-smooth);
             margin-top: 4px;
             letter-spacing: 0.5px;
             position: relative;
@@ -1079,23 +1020,192 @@
             transform: scale(1.01);
             filter: brightness(1.1);
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        #loginModal .modal-content {
+            width: 350px;
+            max-width: 90%;
         }
-        ::-webkit-scrollbar-track {
+        #loginModal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        #loginModal .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        #loginModal .modal-header i {
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: transform 0.3s var(--transition-smooth), color 0.2s;
+            font-size: 16px;
+        }
+        #loginModal .modal-header i:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        #loginModal .form-group {
+            margin-bottom: 12px;
+        }
+        #loginModal .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        #loginModal .form-group input {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth),
+                background 0.25s;
+        }
+        #loginModal .form-group input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+            background: rgba(0, 212, 255, 0.03);
+        }
+        #loginModal .error-msg {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+        }
+        #loginModal .btn-primary {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--cyan), #0095ff);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-smooth);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        #loginModal .btn-primary:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            transform: scale(1.01);
+            filter: brightness(1.1);
+        }
+        #loginModal .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--grid-line);
+            border-radius: 8px;
             background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-smooth);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
+        #loginModal .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.12);
+        #routineNameModal .modal-content {
+            width: 350px;
+            max-width: 90%;
         }
-
-        /* --- Month View (RECREATED with flex, no CSS grid) --- */
+        #routineNameModal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        #routineNameModal .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        #routineNameModal .modal-header i {
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: transform 0.3s var(--transition-smooth), color 0.2s;
+            font-size: 16px;
+        }
+        #routineNameModal .modal-header i:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        #routineNameModal .form-group {
+            margin-bottom: 12px;
+        }
+        #routineNameModal .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        #routineNameModal .form-group input {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth),
+                background 0.25s;
+        }
+        #routineNameModal .form-group input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+            background: rgba(0, 212, 255, 0.03);
+        }
+        #routineNameModal .btn-primary {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--cyan), #0095ff);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-smooth);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+        #routineNameModal .btn-primary:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            transform: scale(1.01);
+            filter: brightness(1.1);
+        }
+        #routineNameModal .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--grid-line);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-smooth);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        #routineNameModal .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
         .month-flex-container {
             display: flex;
             flex-direction: column;
@@ -1121,7 +1231,7 @@
             padding: 8px;
             position: relative;
             cursor: pointer;
-            transition: 0.2s;
+            transition: background 0.2s;
             min-height: 80px;
             overflow: hidden;
         }
@@ -1151,7 +1261,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             font-weight: 500;
-            transition: 0.2s;
+            transition: transform 0.2s;
         }
         .month-flex-cell .month-event:hover {
             transform: translateX(4px);
@@ -1163,8 +1273,6 @@
         .month-flex-cell.empty:hover {
             background: transparent;
         }
-
-        /* --- Agenda View Specific --- */
         .agenda-list {
             width: 100%;
             padding: 24px;
@@ -1182,8 +1290,9 @@
             border-radius: 12px;
             border-left: 4px solid;
             align-items: center;
-            transition: 0.2s;
+            transition: all 0.25s var(--transition-smooth);
             cursor: pointer;
+            will-change: transform, background;
         }
         .agenda-item:hover {
             background: rgba(255, 255, 255, 0.06);
@@ -1207,67 +1316,96 @@
             color: var(--text-secondary);
             margin-top: 2px;
         }
-
-        /* --- Login Modal --- */
-        #loginModal.modal-overlay {
+        .toast-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(16px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        #loginModal.modal-overlay.active {
-            opacity: 1;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100000;
             display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
         }
-        #loginModal .modal-content {
+        .toast {
             background: rgba(20, 26, 40, 0.95);
-            padding: 24px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 350px;
-            max-width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 20px;
             color: var(--text-primary);
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(30px);
-            transform: scale(0.9);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            animation: toastIn 0.3s ease forwards;
+            max-width: 360px;
+            line-height: 1.4;
         }
-        #loginModal.modal-overlay.active .modal-content {
-            transform: scale(1);
+        .toast.error {
+            border-color: rgba(255, 77, 77, 0.3);
         }
-        #loginModal .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+        .toast.fade-out {
+            animation: toastOut 0.3s ease forwards;
         }
-        #loginModal .modal-header h2 {
-            font-size: 18px;
-            font-weight: 600;
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        #loginModal .modal-header i {
-            cursor: pointer;
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(10px) scale(0.95); }
+        }
+        #customConfirmModal .modal-content {
+            width: 360px;
+            max-width: 90%;
+            text-align: center;
+        }
+        #customConfirmModal .confirm-message {
             color: var(--text-secondary);
-            transition: 0.2s;
-            font-size: 16px;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
         }
-        #loginModal .modal-header i:hover {
+        #customConfirmModal .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        #customConfirmModal .confirm-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s var(--transition-smooth);
+        }
+        #customConfirmModal .btn-confirm-cancel {
+            background: transparent;
+            border: 1px solid var(--grid-line);
+            color: var(--text-secondary);
+        }
+        #customConfirmModal .btn-confirm-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
             color: white;
-            transform: rotate(90deg);
         }
-        #loginModal .form-group {
+        #customConfirmModal .btn-confirm-ok {
+            background: linear-gradient(135deg, #ff4d4d, #ff6b6b);
+            border: none;
+            color: white;
+        }
+        #customConfirmModal .btn-confirm-ok:hover {
+            box-shadow: 0 0 30px rgba(255, 77, 77, 0.3);
+            filter: brightness(1.1);
+        }
+        #customPromptModal .modal-content {
+            width: 360px;
+            max-width: 90%;
+        }
+        #customPromptModal .form-group {
             margin-bottom: 12px;
         }
-        #loginModal .form-group label {
+        #customPromptModal .form-group label {
             display: block;
             font-size: 11px;
             font-weight: 600;
@@ -1276,7 +1414,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        #loginModal .form-group input {
+        #customPromptModal .form-group input {
             width: 100%;
             padding: 8px 10px;
             background: rgba(255, 255, 255, 0.03);
@@ -1285,99 +1423,196 @@
             color: white;
             font-size: 13px;
             outline: none;
-            transition: 0.2s;
+            transition: border-color 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth), background 0.25s;
         }
-        #loginModal .form-group input:focus {
+        #customPromptModal .form-group input:focus {
             border-color: var(--cyan);
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
             background: rgba(0, 212, 255, 0.03);
         }
-        #loginModal .error-msg {
-            color: #ff4d4d;
-            font-size: 12px;
-            margin-top: 8px;
-            display: none;
+        #customPromptModal .prompt-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
         }
-        #loginModal .btn-primary {
-            width: 100%;
-            padding: 10px;
-            border: none;
+        #customPromptModal .prompt-actions button {
+            padding: 10px 20px;
             border-radius: 8px;
-            background: linear-gradient(135deg, var(--cyan), #0095ff);
-            color: white;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 8px;
-            letter-spacing: 0.5px;
+            transition: all 0.25s var(--transition-smooth);
         }
-        #loginModal .btn-primary:hover {
-            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
-            transform: scale(1.01);
-            filter: brightness(1.1);
-        }
-        #loginModal .btn-secondary {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--grid-line);
-            border-radius: 8px;
+        #customPromptModal .btn-prompt-cancel {
             background: transparent;
+            border: 1px solid var(--grid-line);
             color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 8px;
-            letter-spacing: 0.5px;
         }
-        #loginModal .btn-secondary:hover {
+        #customPromptModal .btn-prompt-cancel:hover {
             background: rgba(255, 255, 255, 0.05);
             color: white;
+        }
+        #customPromptModal .btn-prompt-ok {
+            background: linear-gradient(135deg, var(--cyan), #0095ff);
+            border: none;
+            color: white;
+        }
+        #customPromptModal .btn-prompt-ok:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            filter: brightness(1.1);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+        @media (max-width: 820px) {
+            .sidebar-left {
+                width: 180px;
+                padding: 16px;
+            }
+            .top-nav {
+                padding: 0 16px;
+            }
+            .nav-center {
+                gap: 16px;
+            }
+            .calendar-main {
+                padding: 16px;
+            }
+            .date-nav h2 {
+                min-width: 120px;
+                font-size: 17px;
+            }
+            .view-toggle span {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            .routine-table td {
+                min-width: 60px;
+                font-size: 12px;
+            }
+            .routine-table td.time-label {
+                width: 70px;
+                font-size: 11px;
+            }
+        }
+        @media (max-width: 600px) {
+            .sidebar-left {
+                display: none;
+            }
+            .top-nav {
+                padding: 0 12px;
+                height: 60px;
+            }
+            .nav-center {
+                gap: 10px;
+            }
+            .nav-center a {
+                font-size: 12px;
+            }
+            .nav-center a i {
+                display: none;
+            }
+            .calendar-main {
+                padding: 12px;
+            }
+            .calendar-header {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .date-nav h2 {
+                min-width: 90px;
+                font-size: 15px;
+            }
+            .view-toggle span {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            .grid-header-row .day-col {
+                font-size: 11px;
+            }
+            .time-col {
+                width: 60px;
+            }
+            .time-slot {
+                font-size: 9px;
+                height: 60px;
+                min-height: 60px;
+            }
+            .bg-line {
+                height: 60px;
+                min-height: 60px;
+            }
+            .event-card {
+                padding: 4px 8px;
+            }
+            .event-title {
+                font-size: 11px;
+            }
+            .event-time {
+                font-size: 9px;
+            }
+            .modal-overlay .modal-content {
+                padding: 20px;
+            }
+            #routineModal .modal-content {
+                padding: 16px;
+            }
+            .toast-container {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+            }
+            .toast {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- INTRO OVERLAY -->
+    <div id="intro-overlay"><div id="white-curtain"></div></div>
 
-    <!-- INTRO OVERLAY (camera zoom animation fades into the webpage) -->
-    <div id="intro-overlay">
-        <div id="white-curtain"></div>
-    </div>
+    <div class="toast-container" id="toastContainer"></div>
 
     <div class="app-container">
         <header class="top-nav">
-            <div class="nav-left">
-                <div class="logo"><i class="fas fa-clock"></i> BRIONESIAN</div>
-            </div>
+            <div class="nav-left"><div class="logo"><i class="fas fa-clock"></i> BRIONESIAN</div></div>
             <nav class="nav-center">
                 <a onclick="switchView('dashboard')"><i class="fas fa-th-large"></i> Dashboard</a>
                 <a onclick="switchView('calendar')" class="active"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </nav>
         </header>
-
         <div class="main-body">
             <aside class="sidebar-left">
-                <div class="create-btn-wrapper" onclick="openRoutineModal()">
+                <div class="create-btn-wrapper" onclick="createNewRoutine()">
                     <div class="create-btn"><i class="fas fa-plus"></i></div>
                     <span>Create Routine</span>
                 </div>
-
                 <div class="calendars-section">
-                    <div class="section-header">
-                        Calendars <i class="fas fa-plus" onclick="alert('Add new calendar feature coming soon!')"></i>
-                    </div>
+                    <div class="section-header">Calendars <i class="fas fa-plus" onclick="showToast('Add new calendar feature coming soon.')"></i></div>
                     <ul class="calendar-list" id="calendarList">
-                        <li class="active" onclick="handleCalendarClick(this, 'My Schedule')"><i class="far fa-calendar"></i> My Schedule <span class="dot cyan"></span></li>
-                        <li class="disabled" onclick="handleCalendarClick(this, 'Quick Notes')"><i class="far fa-lightbulb"></i> Quick Notes <span class="dot purple"></span></li>
+                        <li class="active" data-calendar="My Schedule" onclick="handleCalendarClick(this, 'My Schedule')" oncontextmenu="handleRightClickCalendar(event, 'My Schedule')"><i class="far fa-calendar"></i> My Schedule <span class="dot cyan"></span></li>
+                        <li data-calendar="Quick Notes" onclick="handleCalendarClick(this, 'Quick Notes')" oncontextmenu="handleRightClickCalendar(event, 'Quick Notes')"><i class="far fa-lightbulb"></i> Quick Notes <span class="dot purple"></span></li>
                     </ul>
                 </div>
             </aside>
-
             <main class="calendar-main" id="calendarView">
                 <div class="calendar-header">
                     <div class="date-nav">
                         <i class="fas fa-chevron-left" onclick="changeDate(-1)"></i>
-                        <h2 id="headerDate">Loading...</h2>
+                        <h2 id="headerDate">Loading…</h2>
                         <i class="fas fa-chevron-right" onclick="changeDate(1)"></i>
                         <button class="today-btn" onclick="goToToday()">Jump to Today</button>
                     </div>
@@ -1388,137 +1623,269 @@
                         <span onclick="setView('Agenda')">Agenda</span>
                     </div>
                 </div>
-
-                <div class="calendar-grid-wrapper" id="calendarGrid">
-                    <!-- Rendered dynamically by JS -->
-                </div>
+                <div class="calendar-grid-wrapper" id="calendarGrid"></div>
             </main>
-
             <main class="dashboard-view" id="dashboardView">
-                <div class="dashboard-container" id="dashboardContainer">
-                    <!-- Rendered dynamically by JS -->
-                </div>
+                <div class="dashboard-container" id="dashboardContainer"></div>
             </main>
         </div>
     </div>
 
-    <!-- Login Modal -->
+    <!-- Modals -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Admin Login</h2>
-                <i class="fas fa-times" onclick="closeLoginModal()"></i>
-            </div>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="loginUsername" placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="Enter password">
-            </div>
-            <div class="error-msg" id="loginError">Invalid credentials. Please try again.</div>
+            <div class="modal-header"><h2>Admin Login</h2><i class="fas fa-times" onclick="closeLoginModal()"></i></div>
+            <div class="form-group"><label>Username</label><input type="text" id="loginUsername" placeholder="Enter username" /></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" /></div>
+            <div class="error-msg" id="loginError">Invalid credentials.</div>
             <button class="btn-primary" onclick="handleLogin()">Login</button>
             <button class="btn-secondary" onclick="closeLoginModal()">Cancel</button>
         </div>
     </div>
 
-    <!-- Tiny Event Modal (Create New Event) -->
     <div class="modal-overlay" id="eventModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create Event</h2>
-                <i class="fas fa-times" onclick="closeModal()"></i>
-            </div>
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="inputTitle" placeholder="Enter event name...">
+            <div class="modal-header"><h2>Create Event</h2><i class="fas fa-times" onclick="closeModal()"></i></div>
+            <div class="form-group"><label>Title</label><input type="text" id="inputTitle" placeholder="Enter event name…" /></div>
+            <div class="form-row">
+                <div class="form-group"><label>Date</label><input type="date" id="inputDate" /></div>
+                <div class="form-group"><label>Calendar</label><select id="inputCalendar"><option value="My Schedule">My Schedule</option><option value="Quick Notes">Quick Notes</option></select></div>
             </div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Date</label>
-                    <input type="date" id="inputDate">
-                </div>
-                <div class="form-group">
-                    <label>Calendar</label>
-                    <select id="inputCalendar">
-                        <option value="My Schedule">My Schedule</option>
-                        <option value="Quick Notes">Quick Notes</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>Start</label><input type="time" id="inputStart" value="09:00" /></div>
+                <div class="form-group"><label>End</label><input type="time" id="inputEnd" value="10:00" /></div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Start</label>
-                    <input type="time" id="inputStart" value="09:00">
-                </div>
-                <div class="form-group">
-                    <label>End</label>
-                    <input type="time" id="inputEnd" value="10:00">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Color</label>
+            <div class="form-group"><label>Color</label>
                 <select id="inputColor">
-                    <option value="red">Red</option>
-                    <option value="pink">Pink</option>
-                    <option value="magenta">Magenta</option>
-                    <option value="purple">Purple</option>
-                    <option value="indigo">Indigo</option>
-                    <option value="blue">Blue</option>
-                    <option value="cyan" selected>Cyan</option>
-                    <option value="teal">Teal</option>
-                    <option value="emerald">Emerald</option>
-                    <option value="green">Green</option>
-                    <option value="lime">Lime</option>
-                    <option value="yellow">Yellow</option>
-                    <option value="amber">Amber</option>
-                    <option value="orange">Orange</option>
-                    <option value="brown">Brown</option>
-                    <option value="slate">Slate</option>
-                    <option value="grey">Grey</option>
+                    <option value="red">Red</option><option value="pink">Pink</option><option value="magenta">Magenta</option>
+                    <option value="purple">Purple</option><option value="indigo">Indigo</option><option value="blue">Blue</option>
+                    <option value="cyan" selected>Cyan</option><option value="teal">Teal</option><option value="emerald">Emerald</option>
+                    <option value="green">Green</option><option value="lime">Lime</option><option value="yellow">Yellow</option>
+                    <option value="amber">Amber</option><option value="orange">Orange</option><option value="brown">Brown</option>
+                    <option value="slate">Slate</option><option value="grey">Grey</option>
                 </select>
             </div>
             <button class="btn-primary" onclick="addEvent()">Add Event</button>
         </div>
     </div>
 
-    <!-- Routine Modal -->
     <div class="modal-overlay" id="routineModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-header-left">
-                    <h2>Weekly Routine</h2>
-                    <button id="routineEditBtn" class="routine-modal-edit-btn" onclick="toggleRoutineEdit()">Edit</button>
-                </div>
+                <div class="modal-header-left"><h2 id="routineModalTitle">Weekly Routine</h2><button id="routineEditBtn" class="routine-modal-edit-btn" onclick="toggleRoutineEdit()">Edit</button></div>
                 <i class="fas fa-times" onclick="closeRoutineModal()"></i>
             </div>
-            <div id="routineContainer">
-                <!-- Rendered dynamically by JS -->
-            </div>
+            <div id="routineContainer"></div>
             <div class="routine-actions">
                 <button class="routine-btn-secondary" onclick="closeRoutineModal()">Cancel</button>
-                <button id="routineSaveBtn" class="btn-primary" onclick="saveRoutineToCalendar()">Save Routine to Calendar</button>
+                <button id="routineSaveBtn" class="btn-primary" onclick="saveRoutineToCalendar()">Save Routine</button>
             </div>
         </div>
     </div>
 
-    <!-- Original application script (complete) -->
+    <div class="modal-overlay" id="routineNameModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Create Routine</h2><i class="fas fa-times" onclick="closeRoutineNameModal()"></i></div>
+            <div class="form-group"><label>Routine Name</label><input type="text" id="inputRoutineName" placeholder="Enter routine name…" /></div>
+            <div class="error-msg" id="routineNameError" style="display:none;color:#ff4d4d;font-size:12px;margin-bottom:12px;">Name cannot be empty.</div>
+            <button class="btn-primary" onclick="confirmRoutineName()">Create</button>
+            <button class="btn-secondary" onclick="closeRoutineNameModal()" style="margin-top:8px;">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Confirm</h2><i class="fas fa-times" onclick="customConfirmCancel()"></i></div>
+            <div class="confirm-message" id="customConfirmMessage"></div>
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="customConfirmCancel()">Cancel</button>
+                <button class="btn-confirm-ok" onclick="customConfirmOk()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customPromptModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="customPromptTitle">Input</h2><i class="fas fa-times" onclick="customPromptCancel()"></i></div>
+            <div class="form-group"><label id="customPromptLabel">Value</label><input type="text" id="customPromptInput" onkeydown="if(event.key==='Enter')customPromptOk()" /></div>
+            <div class="prompt-actions">
+                <button class="btn-prompt-cancel" onclick="customPromptCancel()">Cancel</button>
+                <button class="btn-prompt-ok" onclick="customPromptOk()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- Supabase Initialisation ---
-        const SUPABASE_URL = 'https://ismvgtnkkqdcigwkzvdl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbXZndG5ra3FkY2lnd2t6dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTg2ODAsImV4cCI6MjA5NzAzNDY4MH0.DGTv9rrpALXzFvTpKXGWqkQhAaWheTm2gxULuJfNBbM';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ─── Supabase & Global ───────────────────────────────────────────────
+        const SUPABASE_CLIENT = window.supabase.createClient(
+            'https://ismvgtnkkqdcigwkzvdl.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbXZndG5ra3FkY2lnd2t6dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTg2ODAsImV4cCI6MjA5NzAzNDY4MH0.DGTv9rrpALXzFvTpKXGWqkQhAaWheTm2gxULuJfNBbM'
+        );
 
-        // --- LOGIN SYSTEM ---
-        let isLoggedIn = false;
-        const ADMIN_USER = 'Reeva Briones';
-        const ADMIN_PASS = '7&%$#RF%$^';
+        const COLORS = { red: '#ef4444', pink: '#ec4899', magenta: '#d946ef', purple: '#a855f7', indigo: '#6366f1',
+            blue: '#3b82f6', cyan: '#06b6d4', teal: '#14b8a6', emerald: '#10b981', green: '#22c55e', lime: '#65a30d',
+            yellow: '#eab308', amber: '#f59e0b', orange: '#f97316', brown: '#8b5a2b', slate: '#64748b', grey: '#6b7280' };
 
+        const state = {
+            view: 'Week',
+            currentDate: new Date(),
+            events: [],
+            activeCalendar: 'My Schedule',
+            selectedCalendar: 'My Schedule',
+            _renderLock: false,
+            _subscribed: false
+        };
+        const ROUTINE_COLS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const ROUTINE_TIMES = ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM',
+            '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
+        ];
+
+        let routineData = {},
+            currentRoutineId = null,
+            currentRoutineName = '';
+        let activeView = 'calendar',
+            renderPending = false;
+        let isLoggedIn = false,
+            pendingAction = null;
+        const ADMIN_USER = 'Reeva Briones',
+            ADMIN_PASS = '7&%$#RF%$^';
+
+        // ─── Helpers ──────────────────────────────────────────────────────────
+        const $ = id => document.getElementById(id);
+        const qs = (s, p = document) => p.querySelector(s);
+        const qsa = (s, p = document) => [...p.querySelectorAll(s)];
+
+        function hexToRgb(hex) {
+            const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : { r: 0, g: 0, b: 0 };
+        }
+
+        function formatDate(d) {
+            if (!(d instanceof Date)) d = new Date(d);
+            if (isNaN(d.getTime())) return '';
+            return d.toISOString().split('T')[0];
+        }
+
+        function isValidDate(d) {
+            return d instanceof Date && !isNaN(d.getTime());
+        }
+
+        function getWeekStart(d) {
+            const dd = new Date(d);
+            if (!isValidDate(dd)) return new Date();
+            const day = dd.getDay();
+            const diff = dd.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(dd.setDate(diff));
+        }
+
+        function getDays(start, n) {
+            const arr = [];
+            const s = new Date(start);
+            if (!isValidDate(s)) return arr;
+            for (let i = 0; i < n; i++) {
+                const d = new Date(s);
+                d.setDate(d.getDate() + i);
+                arr.push(d);
+            }
+            return arr;
+        }
+
+        function safeStr(v) { return (v || '').toString().trim(); }
+
+        function throttleRender() {
+            if (!renderPending) {
+                renderPending = true;
+                requestAnimationFrame(() => {
+                    renderPending = false;
+                    if (activeView === 'calendar') render();
+                    else renderDashboard();
+                });
+            }
+        }
+
+        function updateSidebar() {
+            qsa('.calendar-list li').forEach(li => {
+                const txt = li.dataset.calendar || safeStr(li.innerText);
+                if (txt === state.activeCalendar) {
+                    li.classList.remove('disabled');
+                    li.classList.add('active', 'selected-creation');
+                } else {
+                    li.classList.remove('active', 'selected-creation');
+                    li.classList.remove('disabled');
+                }
+            });
+        }
+
+        // ─── Toast ────────────────────────────────────────────────────────────
+        function showToast(message, type, duration) {
+            type = type || 'info';
+            duration = duration || 3000;
+            const container = $('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast' + (type === 'error' ? ' error' : '');
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ─── Custom Confirm ──────────────────────────────────────────────────
+        let _confirmCallback = null;
+        function customConfirm(message, callback) {
+            _confirmCallback = callback;
+            const modal = $('customConfirmModal');
+            const msg = $('customConfirmMessage');
+            if (msg) msg.textContent = message;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+        function customConfirmOk() {
+            const modal = $('customConfirmModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            if (_confirmCallback) { _confirmCallback(true); _confirmCallback = null; }
+        }
+        function customConfirmCancel() {
+            const modal = $('customConfirmModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            if (_confirmCallback) { _confirmCallback(false); _confirmCallback = null; }
+        }
+
+        // ─── Custom Prompt ───────────────────────────────────────────────────
+        let _promptCallback = null;
+        function customPrompt(title, label, defaultValue, callback) {
+            _promptCallback = callback;
+            const modal = $('customPromptModal');
+            const t = $('customPromptTitle');
+            const l = $('customPromptLabel');
+            const inp = $('customPromptInput');
+            if (t) t.textContent = title || 'Input';
+            if (l) l.textContent = label || 'Value';
+            if (inp) { inp.value = defaultValue || ''; }
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.classList.add('active'); if (inp) { inp.focus(); inp.select(); } }, 10);
+        }
+        function customPromptOk() {
+            const modal = $('customPromptModal');
+            const inp = $('customPromptInput');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            if (_promptCallback) { _promptCallback(inp ? inp.value : null); _promptCallback = null; }
+        }
+        function customPromptCancel() {
+            const modal = $('customPromptModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            if (_promptCallback) { _promptCallback(null); _promptCallback = null; }
+        }
+
+        // ─── Login ────────────────────────────────────────────────────────────
         function checkLogin() {
-            // If already logged in this session, return true
             if (isLoggedIn) return true;
-            // Check sessionStorage for persistent flag
             if (sessionStorage.getItem('brionesian_logged_in') === 'true') {
                 isLoggedIn = true;
                 return true;
@@ -1526,197 +1893,450 @@
             return false;
         }
 
-        function requireLogin() {
-            if (!checkLogin()) {
-                // Show login modal
-                document.getElementById('loginModal').classList.add('active');
-                document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('loginError').style.display = 'none';
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-                return false;
+        function requireLogin(cb) {
+            if (checkLogin()) {
+                if (cb) cb();
+                return true;
             }
-            return true;
+            pendingAction = cb || null;
+            const modal = $('loginModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            const err = $('loginError');
+            if (err) err.style.display = 'none';
+            const un = $('loginUsername');
+            const pw = $('loginPassword');
+            if (un) un.value = '';
+            if (pw) pw.value = '';
+            return false;
         }
 
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-            setTimeout(() => document.getElementById('loginModal').style.display = 'none', 300);
+        function closeLoginModal(clearAction) {
+            clearAction = clearAction !== false;
+            const m = $('loginModal');
+            m.classList.remove('active');
+            setTimeout(() => { m.style.display = 'none'; }, 300);
+            if (clearAction) {
+                pendingAction = null;
+            }
         }
 
         function handleLogin() {
-            const user = document.getElementById('loginUsername').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
+            const user = safeStr($('loginUsername')?.value || '');
+            const pass = safeStr($('loginPassword')?.value || '');
             if (user === ADMIN_USER && pass === ADMIN_PASS) {
                 isLoggedIn = true;
                 sessionStorage.setItem('brionesian_logged_in', 'true');
-                closeLoginModal();
-                // After login, re-trigger the action that opened the modal
-                if (pendingAction) {
-                    const action = pendingAction;
-                    pendingAction = null;
-                    action();
+                closeLoginModal(false);
+                const action = pendingAction;
+                pendingAction = null;
+                if (action) {
+                    setTimeout(() => {
+                        try { action(); } catch (e) { console.warn('Pending action failed:', e); }
+                    }, 1500);
                 }
             } else {
-                document.getElementById('loginError').style.display = 'block';
+                const err = $('loginError');
+                if (err) err.style.display = 'block';
             }
         }
 
-        let pendingAction = null;
-
-        // --- Core Data & State (Empty Slate & Current Date) ---
-        const colors = {
-            'red': '#ef4444',
-            'pink': '#ec4899',
-            'magenta': '#d946ef',
-            'purple': '#a855f7',
-            'indigo': '#6366f1',
-            'blue': '#3b82f6',
-            'cyan': '#06b6d4',
-            'teal': '#14b8a6',
-            'emerald': '#10b981',
-            'green': '#22c55e',
-            'lime': '#65a30d',
-            'yellow': '#eab308',
-            'amber': '#f59e0b',
-            'orange': '#f97316',
-            'brown': '#8b5a2b',
-            'slate': '#64748b',
-            'grey': '#6b7280'
-        };
-
-        let state = {
-            view: 'Week',
-            currentDate: new Date(),
-            events: [],
-            activeCalendar: 'My Schedule',
-            selectedCalendar: 'My Schedule'
-        };
-
-        // Routine Data State
-        const routineColumns = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const routineTimes = ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM',
-            '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
-        ];
-        let routineData = {};
-        let routineDataStore = {}; // Stores the latest saved routine for editing
-
-        let nextId = 1;
-        let activeView = 'calendar';
-
-        // --- Helper Functions ---
-        function hexToRgb(hex) {
-            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 0,
-                g: 0, b: 0 };
-        }
-
-        function formatDate(date) {
-            const d = new Date(date);
-            return d.toISOString().split('T')[0];
-        }
-
-        function getWeekStart(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
-        }
-
-        function getDaysArray(start, days) {
-            const arr = [];
-            for (let i = 0; i < days; i++) {
-                const d = new Date(start);
-                d.setDate(d.getDate() + i);
-                arr.push(d);
-            }
-            return arr;
-        }
-
-        // --- Supabase Data Functions ---
+        // ─── Supabase CRUD ──────────────────────────────────────────────────
         async function loadEvents() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('events')
+                const { data, error } = await SUPABASE_CLIENT.from('events')
                     .select('*')
                     .order('event_date', { ascending: true });
-
                 if (error) {
-                    console.error('Error loading events:', error);
+                    console.error('loadEvents error', error);
                     return;
                 }
-
-                state.events = data.map(row => ({
-                    id: row.id,
-                    title: row.title,
-                    calendar: row.calendar,
-                    date: row.event_date,
-                    start: row.start_time.slice(0, 5),
-                    end: row.end_time.slice(0, 5),
-                    color: row.color,
-                    type: row.type
+                state.events = (data || []).map(r => ({
+                    id: r.id,
+                    title: safeStr(r.title),
+                    calendar: safeStr(r.calendar),
+                    date: r.event_date,
+                    start: (r.start_time || '00:00').slice(0, 5),
+                    end: (r.end_time || '00:00').slice(0, 5),
+                    color: safeStr(r.color) || 'cyan',
+                    type: safeStr(r.type) || 'manual'
                 }));
-            } catch (err) {
-                console.error('Failed to load events:', err);
-                // Keep default empty events
+                throttleRender();
+            } catch (e) {
+                console.error('loadEvents failed', e);
             }
         }
 
-        async function loadRoutineTemplate() {
+        async function loadRoutines() {
             try {
-                const { data: rows, error } = await supabaseClient
-                    .from('routine_templates')
+                const { data, error } = await SUPABASE_CLIENT.from('routines')
                     .select('*')
-                    .eq('calendar', state.selectedCalendar);
-
+                    .eq('calendar', state.selectedCalendar)
+                    .order('created_at', { ascending: true });
                 if (error) {
-                    console.error('Error loading routine template:', error);
+                    console.error('loadRoutines error', error);
+                    return [];
+                }
+                return data || [];
+            } catch (e) {
+                console.error('loadRoutines failed', e);
+                return [];
+            }
+        }
+
+        async function loadRoutineTemplate(id) {
+            try {
+                const { data, error } = await SUPABASE_CLIENT.from('routine_templates')
+                    .select('*')
+                    .eq('routine_id', id);
+                if (error) {
+                    console.error('loadTemplate error', error);
                     return {};
                 }
-
-                const template = {};
-                routineTimes.forEach(time => { template[time] = {}; });
-                if (rows) {
-                    rows.forEach(row => {
-                        if (!template[row.time_slot]) template[row.time_slot] = {};
-                        template[row.time_slot][row.day] = row.subject || '';
+                const tpl = {};
+                ROUTINE_TIMES.forEach(t => tpl[t] = {});
+                if (data) {
+                    data.forEach(r => {
+                        const slot = safeStr(r.time_slot);
+                        const day = safeStr(r.day);
+                        if (!tpl[slot]) tpl[slot] = {};
+                        tpl[slot][day] = safeStr(r.subject);
                     });
                 }
-                return template;
-            } catch (err) {
-                console.error('Failed to load routine template:', err);
+                return tpl;
+            } catch (e) {
+                console.error('loadTemplate failed', e);
                 return {};
             }
         }
 
-        // --- View Switch Logic ---
-        function switchView(viewName) {
-            const links = document.querySelectorAll('.nav-center a');
-            const calendarEl = document.getElementById('calendarView');
-            const dashboardEl = document.getElementById('dashboardView');
-            activeView = viewName;
-
-            links.forEach(l => l.classList.remove('active'));
-            if (viewName === 'calendar') {
-                links[1].classList.add('active');
-                calendarEl.classList.remove('hidden');
-                dashboardEl.classList.remove('visible');
-                render();
-            } else {
-                links[0].classList.add('active');
-                calendarEl.classList.add('hidden');
-                dashboardEl.classList.add('visible');
-                renderDashboard();
+        function subscribeRealtime() {
+            if (state._subscribed) return;
+            state._subscribed = true;
+            try {
+                if (!window._evSub) {
+                    window._evSub = SUPABASE_CLIENT.channel('events-realtime')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => loadEvents())
+                        .subscribe((status) => {
+                            if (status === 'CHANNEL_ERROR') console.warn('Events realtime channel error');
+                        });
+                }
+                if (!window._rtSub) {
+                    window._rtSub = SUPABASE_CLIENT.channel('routines-realtime')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'routines' }, () => {
+                            if (activeView === 'dashboard') renderDashboard();
+                        })
+                        .subscribe((status) => {
+                            if (status === 'CHANNEL_ERROR') console.warn('Routines realtime channel error');
+                        });
+                }
+            } catch (e) {
+                console.warn('Realtime subscription error:', e);
             }
         }
 
-        // --- Navigation Functions ---
-        function changeDate(direction) {
+        // ─── Routine Functions ──────────────────────────────────────────────
+
+        function showRoutineNameModal() {
+            const modal = $('routineNameModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            const input = $('inputRoutineName');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+            const err = $('routineNameError');
+            if (err) err.style.display = 'none';
+        }
+
+        function closeRoutineNameModal() {
+            const modal = $('routineNameModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        async function confirmRoutineName() {
+            const input = $('inputRoutineName');
+            const name = safeStr(input?.value || '');
+            const err = $('routineNameError');
+            if (!name) {
+                if (err) err.style.display = 'block';
+                return;
+            }
+            if (err) err.style.display = 'none';
+            closeRoutineNameModal();
+
+            try {
+                const { data, error } = await SUPABASE_CLIENT.from('routines')
+                    .insert([{ name: name, calendar: state.selectedCalendar }])
+                    .select();
+                if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+                if (data && data.length) {
+                    openRoutineModalInternal(data[0].id, data[0].name);
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Something went wrong.', 'error');
+            }
+        }
+
+        function createNewRoutineInternal() {
+            showRoutineNameModal();
+        }
+
+        function renameRoutineInternal(id, cur) {
+            customPrompt('Rename Routine', 'New name', cur, (newName) => {
+                if (newName === null) return;
+                const trimmed = newName.trim();
+                if (!trimmed) { showToast('Name cannot be empty.', 'error'); return; }
+                SUPABASE_CLIENT.from('routines')
+                    .update({ name: trimmed })
+                    .eq('id', id)
+                    .then(({ error }) => {
+                        if (error) showToast('Failed: ' + error.message, 'error');
+                        else if (activeView === 'dashboard') renderDashboard();
+                    })
+                    .catch(e => { console.error(e); showToast('Something went wrong.', 'error'); });
+            });
+        }
+
+        function deleteRoutineInternal(id) {
+            customConfirm('Delete this routine and all its data?', (confirmed) => {
+                if (!confirmed) return;
+                SUPABASE_CLIENT.from('routines')
+                    .delete()
+                    .eq('id', id)
+                    .then(({ error }) => {
+                        if (error) showToast('Failed: ' + error.message, 'error');
+                        else if (activeView === 'dashboard') renderDashboard();
+                    })
+                    .catch(e => { console.error(e); showToast('Something went wrong.', 'error'); });
+            });
+        }
+
+        async function openRoutineModalInternal(id, name) {
+            currentRoutineId = id;
+            currentRoutineName = name || 'Unnamed Routine';
+            $('routineModalTitle').innerText = currentRoutineName;
+            const modal = $('routineModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            routineData = await loadRoutineTemplate(id);
+            ROUTINE_TIMES.forEach(t => {
+                if (!routineData[t]) routineData[t] = {};
+                ROUTINE_COLS.forEach(d => {
+                    if (!routineData[t][d]) routineData[t][d] = '';
+                });
+            });
+            modal.dataset.editable = 'false';
+            renderRoutineGrid();
+            updateRoutineButtons(false);
+        }
+
+        function openModalInternal(dateStr, timeStr) {
+            const modal = $('eventModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            const dateInput = $('inputDate');
+            if (dateInput) dateInput.value = dateStr || formatDate(state.currentDate);
+            const startInput = $('inputStart');
+            if (startInput) startInput.value = timeStr || '09:00';
+            const calInput = $('inputCalendar');
+            if (calInput) calInput.value = state.selectedCalendar;
+            const titleInput = $('inputTitle');
+            if (titleInput) {
+                setTimeout(() => titleInput.focus(), 50);
+            }
+        }
+
+        function handleCalendarClickInternal(el, name) {
+            state.activeCalendar = name;
+            state.selectedCalendar = name;
+            updateSidebar();
+            if (activeView === 'calendar') render();
+            else renderDashboard();
+            openModalInternal(formatDate(state.currentDate), '09:00');
+        }
+
+        function handleRightClickCalendarInternal(e, name) {
+            e.preventDefault();
+            state.selectedCalendar = name;
+            state.activeCalendar = name;
+            updateSidebar();
+            openModalInternal(formatDate(state.currentDate), '09:00');
+        }
+
+        // ─── Public wrappers with login guard ──────────────────────────────
+
+        function createNewRoutine() {
+            if (!requireLogin(createNewRoutineInternal)) return;
+            createNewRoutineInternal();
+        }
+
+        function renameRoutine(id, cur) {
+            if (!requireLogin(() => renameRoutineInternal(id, cur))) return;
+            renameRoutineInternal(id, cur);
+        }
+
+        function deleteRoutine(id) {
+            if (!requireLogin(() => deleteRoutineInternal(id))) return;
+            deleteRoutineInternal(id);
+        }
+
+        function openRoutineModal(id, name) {
+            if (!requireLogin(() => openRoutineModalInternal(id, name))) return;
+            openRoutineModalInternal(id, name);
+        }
+
+        function openModal(dateStr, timeStr) {
+            if (!requireLogin(() => openModalInternal(dateStr, timeStr))) return;
+            openModalInternal(dateStr, timeStr);
+        }
+
+        function handleCalendarClick(el, name) {
+            if (!requireLogin(() => handleCalendarClickInternal(el, name))) return;
+            handleCalendarClickInternal(el, name);
+        }
+
+        function handleRightClickCalendar(e, name) {
+            if (!requireLogin(() => handleRightClickCalendarInternal(e, name))) return;
+            handleRightClickCalendarInternal(e, name);
+        }
+
+        // ─── Other UI functions ──────────────────────────────────────────────
+
+        function closeRoutineModal() {
+            const m = $('routineModal');
+            m.classList.remove('active');
+            setTimeout(() => m.style.display = 'none', 300);
+            if (activeView === 'dashboard') renderDashboard();
+        }
+
+        function toggleRoutineEdit() {
+            const m = $('routineModal');
+            const ed = m.dataset.editable === 'true';
+            m.dataset.editable = ed ? 'false' : 'true';
+            renderRoutineGrid();
+            updateRoutineButtons(!ed);
+        }
+
+        function updateRoutineButtons(ed) {
+            const btn = $('routineEditBtn');
+            if (btn) btn.innerText = ed ? 'Cancel' : 'Edit';
+            const saveBtn = $('routineSaveBtn');
+            if (saveBtn) saveBtn.style.display = ed ? 'inline-block' : 'none';
+        }
+
+        function renderRoutineGrid() {
+            const ed = $('routineModal')?.dataset?.editable === 'true';
+            let html =
+                `<table class="routine-table"><thead><tr><th style="min-width:80px;">Time</th>${ROUTINE_COLS.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+            ROUTINE_TIMES.forEach(t => {
+                html += `<tr><td class="time-label">${t}</td>`;
+                ROUTINE_COLS.forEach(d => {
+                    const val = (routineData[t] && routineData[t][d]) || '';
+                    html += `<td>`;
+                    if (ed) {
+                        if (val) html +=
+                            `<div class="cell-filled-editable" onclick="editRoutineCell(this,'${t}','${d}')">${val}</div>`;
+                        else html +=
+                            `<div class="cell-empty-editable" onclick="editRoutineCell(this,'${t}','${d}')"></div>`;
+                    } else {
+                        html += val ? `<div class="cell-filled-readonly">${val}</div>` :
+                            `<div class="cell-empty-readonly"></div>`;
+                    }
+                    html += `</td>`;
+                });
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
+            const container = $('routineContainer');
+            if (container) container.innerHTML = html;
+        }
+
+        function editRoutineCell(td, t, d) {
+            const cur = (routineData[t] && routineData[t][d]) || '';
+            td.innerHTML =
+                `<input type="text" class="cell-input" value="${cur}" placeholder="Subject…" onblur="saveRoutineCell(this,'${t}','${d}')" onkeydown="if(event.key==='Enter')this.blur()" />`;
+            const inp = td.querySelector('input');
+            if (inp) {
+                inp.focus();
+                inp.select();
+            }
+        }
+
+        function saveRoutineCell(inp, t, d) {
+            if (!routineData[t]) routineData[t] = {};
+            routineData[t][d] = safeStr(inp.value);
+            renderRoutineGrid();
+        }
+
+        async function saveRoutineToCalendar() {
+            if (!currentRoutineId) { showToast('No routine selected.', 'error'); return; }
+            const entries = [];
+            ROUTINE_TIMES.forEach(t => {
+                ROUTINE_COLS.forEach(d => {
+                    const sub = (routineData[t] && routineData[t][d]) || '';
+                    entries.push({
+                        routine_id: currentRoutineId,
+                        day: d,
+                        time_slot: t,
+                        subject: sub || null
+                    });
+                });
+            });
+            try {
+                const { error: delErr } = await SUPABASE_CLIENT.from('routine_templates')
+                    .delete()
+                    .eq('routine_id', currentRoutineId);
+                if (delErr) { showToast('Failed to clear old data: ' + delErr.message, 'error'); return; }
+
+                const { error: insErr } = await SUPABASE_CLIENT.from('routine_templates')
+                    .insert(entries);
+                if (insErr) { showToast('Failed to save: ' + insErr.message, 'error'); return; }
+
+                const modal = $('routineModal');
+                if (modal) modal.dataset.editable = 'false';
+                updateRoutineButtons(false);
+                renderRoutineGrid();
+                if (activeView === 'dashboard') renderDashboard();
+            } catch (e) {
+                console.error(e);
+                showToast('Something went wrong.', 'error');
+            }
+        }
+
+        // ─── View / Navigation ──────────────────────────────────────────────
+
+        function switchView(v) {
+            qsa('.nav-center a').forEach(l => l.classList.remove('active'));
+            const cal = $('calendarView'),
+                dash = $('dashboardView');
+            activeView = v;
+            if (v === 'calendar') {
+                const navLinks = qsa('.nav-center a');
+                if (navLinks.length > 1) navLinks[1].classList.add('active');
+                if (cal) cal.classList.remove('hidden');
+                if (dash) dash.classList.remove('visible');
+                render();
+            } else {
+                const navLinks = qsa('.nav-center a');
+                if (navLinks.length > 0) navLinks[0].classList.add('active');
+                if (cal) cal.classList.add('hidden');
+                if (dash) dash.classList.add('visible');
+                renderDashboard();
+            }
+            updateSidebar();
+        }
+
+        function changeDate(dir) {
             const d = new Date(state.currentDate);
-            if (state.view === 'Day') d.setDate(d.getDate() + direction);
-            else if (state.view === 'Week') d.setDate(d.getDate() + (direction * 7));
-            else if (state.view === 'Month') d.setMonth(d.getMonth() + direction);
-            else if (state.view === 'Agenda') d.setDate(d.getDate() + (direction * 3));
+            if (!isValidDate(d)) { state.currentDate = new Date(); return; }
+            if (state.view === 'Day') d.setDate(d.getDate() + dir);
+            else if (state.view === 'Week') d.setDate(d.getDate() + dir * 7);
+            else if (state.view === 'Month') d.setMonth(d.getMonth() + dir);
+            else if (state.view === 'Agenda') d.setDate(d.getDate() + dir * 3);
             state.currentDate = d;
             if (activeView === 'calendar') render();
         }
@@ -1726,1176 +2346,875 @@
             if (activeView === 'calendar') render();
         }
 
-        // --- View & Toggle Functions ---
-        function setView(view) {
-            state.view = view;
-            const spans = document.querySelectorAll('#viewToggle span');
-            spans.forEach(s => s.classList.remove('active'));
-            Array.from(spans).find(s => s.innerText === view).classList.add('active');
+        function setView(v) {
+            state.view = v;
+            qsa('#viewToggle span').forEach(s => s.classList.remove('active'));
+            const target = qsa('#viewToggle span').find(s => s.innerText === v);
+            if (target) target.classList.add('active');
             if (activeView === 'calendar') render();
         }
 
-        function handleCalendarClick(element, name) {
-            if (state.activeCalendar === name) return;
+        // ─── Event Modal ──────────────────────────────────────────────────────
 
-            const items = document.querySelectorAll('.calendar-list li');
-            state.activeCalendar = name;
-            state.selectedCalendar = name;
+        function closeModal() {
+            const m = $('eventModal');
+            m.classList.remove('active');
+            setTimeout(() => m.style.display = 'none', 300);
+            const titleInput = $('inputTitle');
+            if (titleInput) titleInput.value = '';
+        }
 
-            items.forEach(li => {
-                const text = li.innerText.trim();
-                if (text === name) {
-                    li.classList.remove('disabled');
-                    li.classList.add('active');
-                    li.classList.add('selected-creation');
-                } else {
-                    li.classList.remove('active');
-                    li.classList.remove('selected-creation');
-                    li.classList.add('disabled');
+        async function addEvent() {
+            const title = safeStr($('inputTitle')?.value || '');
+            const date = $('inputDate')?.value || '';
+            const calendar = $('inputCalendar')?.value || 'My Schedule';
+            const start = $('inputStart')?.value || '';
+            const end = $('inputEnd')?.value || '';
+            const color = $('inputColor')?.value || 'cyan';
+
+            if (!title) { showToast('Please enter an event title.', 'error'); return; }
+            if (!date) { showToast('Please select a date.', 'error'); return; }
+            if (!start || !end) { showToast('Please select start and end times.', 'error'); return; }
+            if (start >= end) { showToast('Start time must be before end time.', 'error'); return; }
+
+            const existing = state.events.filter(e => e.date === date && e.calendar === calendar);
+            const overlap = existing.some(e => {
+                const s1 = start,
+                    e1 = end,
+                    s2 = e.start,
+                    e2 = e.end;
+                return (s1 < e2 && e1 > s2);
+            });
+            if (overlap) { showToast('An event already exists at this time.', 'error'); return; }
+
+            try {
+                const { data, error } = await SUPABASE_CLIENT.from('events')
+                    .insert([{ title, calendar, event_date: date, start_time: start, end_time: end, color,
+                        type: 'manual' }])
+                    .select();
+                if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+                if (data && data.length) {
+                    state.events.push({
+                        id: data[0].id,
+                        title,
+                        calendar,
+                        date,
+                        start,
+                        end,
+                        color,
+                        type: 'manual'
+                    });
+                }
+                closeModal();
+                if (activeView === 'calendar') render();
+                else renderDashboard();
+            } catch (e) {
+                console.error(e);
+                showToast('Something went wrong.', 'error');
+            }
+        }
+
+        function deleteEvent(id) {
+            customConfirm('Delete this event?', async (confirmed) => {
+                if (!confirmed) return;
+                try {
+                    const { error } = await SUPABASE_CLIENT.from('events')
+                        .delete()
+                        .eq('id', id);
+                    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+                    state.events = state.events.filter(e => e.id !== id);
+                    if (activeView === 'calendar') render();
+                    else renderDashboard();
+                } catch (e) {
+                    console.error(e);
+                    showToast('Something went wrong.', 'error');
                 }
             });
+        }
 
+        // ─── Drag & Drop ─────────────────────────────────────────────────────
+
+        let draggedId = null;
+        let dragSourceId = null;
+
+        function dragStart(e, id) {
+            draggedId = id;
+            dragSourceId = id;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(id));
+            const el = e.target.closest('.event-card');
+            if (el) {
+                el.style.opacity = '0.5';
+                el.style.transition = 'opacity 0.15s';
+            }
+        }
+
+        function dragEnd(e) {
+            const el = e.target.closest('.event-card');
+            if (el) {
+                el.style.opacity = '1';
+                el.style.transition = '';
+            }
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        async function drop(e, newDate) {
+            e.preventDefault();
+            const id = parseInt(e.dataTransfer.getData('text/plain'), 10);
+            if (isNaN(id)) { draggedId = null; return; }
+
+            const idx = state.events.findIndex(ev => ev.id === id);
+            if (idx === -1) { draggedId = null; return; }
+
+            if (state.events[idx].calendar !== state.activeCalendar) {
+                draggedId = null;
+                return;
+            }
+
+            if (state.events[idx].date === newDate) { draggedId = null; return; }
+
+            const oldDate = state.events[idx].date;
+            state.events[idx].date = newDate;
+
+            try {
+                const { error } = await SUPABASE_CLIENT.from('events')
+                    .update({ event_date: newDate })
+                    .eq('id', id);
+                if (error) {
+                    state.events[idx].date = oldDate;
+                    console.error('Drop update failed:', error);
+                    showToast('Failed to move event: ' + error.message, 'error');
+                }
+            } catch (e) {
+                state.events[idx].date = oldDate;
+                console.error('Drop error:', e);
+                showToast('Something went wrong while moving the event.', 'error');
+            }
+
+            draggedId = null;
             if (activeView === 'calendar') render();
             else renderDashboard();
         }
 
-        // --- Routine Modal Functions (with login check) ---
-        async function openRoutineModal(isEditable = false) {
-            // If not logged in, show login and set pending action
-            if (!checkLogin()) {
-                pendingAction = () => openRoutineModal(isEditable);
-                document.getElementById('loginModal').classList.add('active');
-                document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('loginError').style.display = 'none';
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-                return;
-            }
+        // ─── Render ──────────────────────────────────────────────────────────
 
-            document.getElementById('routineModal').classList.add('active');
-            document.getElementById('routineModal').style.display = 'flex';
-            
-            const template = await loadRoutineTemplate();
-            if (Object.keys(template).length > 0 && Object.values(template).some(day => Object.values(day).some(v => v))) {
-                routineDataStore = template;
-            } else {
-                routineDataStore = {};
-                routineTimes.forEach(time => { routineDataStore[time] = {}; });
-                routineColumns.forEach(day => { routineTimes.forEach(time => { routineDataStore[time][day] = ''; }); });
-            }
-            routineData = JSON.parse(JSON.stringify(routineDataStore));
-
-            const modal = document.getElementById('routineModal');
-            modal.dataset.editable = isEditable ? 'true' : 'false';
-            renderRoutineGrid();
-            updateRoutineModeButtons(isEditable);
-        }
-
-        function closeRoutineModal() {
-            document.getElementById('routineModal').classList.remove('active');
-            setTimeout(() => document.getElementById('routineModal').style.display = 'none', 300);
-        }
-
-        function toggleRoutineEdit() {
-            const modal = document.getElementById('routineModal');
-            const isCurrentlyEditable = modal.dataset.editable === 'true';
-            const newState = !isCurrentlyEditable;
-            modal.dataset.editable = newState ? 'true' : 'false';
-            renderRoutineGrid();
-            updateRoutineModeButtons(newState);
-        }
-
-        function updateRoutineModeButtons(isEditable) {
-            const editBtn = document.getElementById('routineEditBtn');
-            const saveBtn = document.getElementById('routineSaveBtn');
-            if (isEditable) {
-                editBtn.innerText = 'Cancel';
-                saveBtn.style.display = 'inline-block';
-            } else {
-                editBtn.innerText = 'Edit';
-                saveBtn.style.display = 'none';
-            }
-        }
-
-        function renderRoutineGrid() {
-            const isEditable = document.getElementById('routineModal').dataset.editable === 'true';
-            let html =
-                `<table class="routine-table"><thead><tr><th style="min-width:80px;">Time</th>`;
-            routineColumns.forEach(day => html += `<th>${day}</th>`);
-            html += `</tr></thead><tbody>`;
-
-            routineTimes.forEach(time => {
-                html += `<tr><td class="time-label">${time}</td>`;
-                routineColumns.forEach(day => {
-                    const val = routineData[time][day] || '';
-                    if (isEditable) {
-                        html += `<td onclick="editRoutineCell(this, '${time}', '${day}')">`;
-                        if (val) {
-                            html += `<div class="cell-filled-editable">${val}</div>`;
-                        } else {
-                            html += `<div class="cell-empty-editable"></div>`;
-                        }
-                    } else {
-                        html += `<td>`;
-                        if (val) {
-                            html += `<div class="cell-filled-readonly">${val}</div>`;
-                        } else {
-                            html += `<div class="cell-empty-readonly"></div>`;
-                        }
-                    }
-                    html += `</td>`;
-                });
-                html += `</tr>`;
-            });
-            html += `</tbody></table>`;
-            document.getElementById('routineContainer').innerHTML = html;
-        }
-
-        function editRoutineCell(td, time, day) {
-            const currentText = routineData[time][day] || '';
-            td.innerHTML =
-                `<input type="text" class="cell-input" value="${currentText}" placeholder="Subject..." onblur="saveRoutineCell(this, '${time}', '${day}')" onkeydown="if(event.key === 'Enter') this.blur()" />`;
-            td.querySelector('input').focus();
-            td.querySelector('input').select();
-        }
-
-        function saveRoutineCell(input, time, day) {
-            const val = input.value.trim();
-            routineData[time][day] = val;
-            renderRoutineGrid();
-        }
-
-        async function saveRoutineToCalendar() {
-            routineDataStore = JSON.parse(JSON.stringify(routineData));
-
-            // Save template to Supabase
-            const entries = [];
-            routineTimes.forEach(time => {
-                routineColumns.forEach(day => {
-                    entries.push({
-                        day,
-                        time_slot: time,
-                        subject: routineData[time][day] || null,
-                        calendar: state.selectedCalendar
-                    });
-                });
-            });
-
-            try {
-                const { error: templateError } = await supabaseClient
-                    .from('routine_templates')
-                    .upsert(entries, { onConflict: 'day, time_slot' });
-
-                if (templateError) {
-                    alert('Failed to save routine template: ' + templateError.message);
-                    return;
-                }
-
-                // Generate events for the current week
-                let newEvents = [];
-                let hasSubjects = false;
-                routineTimes.forEach(time => {
-                    routineColumns.forEach(day => {
-                        const subject = routineData[time][day];
-                        if (subject) {
-                            hasSubjects = true;
-                            const today = new Date();
-                            const currentDayIndex = today.getDay();
-                            const targetDayIndex = routineColumns.indexOf(day) + 1;
-                            let diff = targetDayIndex - currentDayIndex;
-                            if (diff < 0) diff += 7;
-                            const eventDate = new Date(today);
-                            eventDate.setDate(today.getDate() + diff);
-
-                            const [hourMin, ampm] = time.split(' ');
-                            let [h, m] = hourMin.split(':').map(Number);
-                            if (ampm === 'PM' && h !== 12) h += 12;
-                            if (ampm === 'AM' && h === 12) h = 0;
-
-                            const startDate = new Date(eventDate);
-                            startDate.setHours(h, m, 0, 0);
-                            const endDate = new Date(startDate);
-                            endDate.setHours(endDate.getHours() + 1);
-
-                            const startStr = startDate.toTimeString().slice(0, 5);
-                            const endStr = endDate.toTimeString().slice(0, 5);
-                            const dateStr = formatDate(eventDate);
-
-                            newEvents.push({
-                                title: subject,
-                                calendar: state.selectedCalendar,
-                                event_date: dateStr,
-                                start_time: startStr,
-                                end_time: endStr,
-                                color: 'cyan',
-                                type: 'routine'
-                            });
-                        }
-                    });
-                });
-
-                if (!hasSubjects) {
-                    alert('Please add at least one subject to your routine before saving.');
-                    return;
-                }
-
-                // Delete old routine events and insert new ones
-                await supabaseClient.from('events').delete().eq('type', 'routine');
-                const { error: eventsError } = await supabaseClient.from('events').insert(newEvents);
-                if (eventsError) {
-                    alert('Failed to save routine events: ' + eventsError.message);
-                    return;
-                }
-
-                await loadEvents();
-
-                document.getElementById('routineModal').dataset.editable = 'false';
-                updateRoutineModeButtons(false);
-                renderRoutineGrid();
-
-                if (activeView === 'calendar') render();
-                else renderDashboard();
-            } catch (err) {
-                console.error('Error saving routine:', err);
-                alert('Something went wrong while saving the routine.');
-            }
-        }
-
-        // --- Event Modal Functions (with login check) ---
-        async function openModal(dateStr, timeStr) {
-            if (!checkLogin()) {
-                pendingAction = () => openModal(dateStr, timeStr);
-                document.getElementById('loginModal').classList.add('active');
-                document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('loginError').style.display = 'none';
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-                return;
-            }
-
-            const modal = document.getElementById('eventModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-            const dateInput = document.getElementById('inputDate');
-            const startInput = document.getElementById('inputStart');
-            if (dateStr) dateInput.value = dateStr;
-            else dateInput.value = formatDate(state.currentDate);
-            if (timeStr) startInput.value = timeStr;
-            else startInput.value = '09:00';
-            document.getElementById('inputCalendar').value = state.selectedCalendar;
-            document.getElementById('inputTitle').focus();
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('eventModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            document.getElementById('inputTitle').value = '';
-        }
-
-        async function addEvent() {
-            const title = document.getElementById('inputTitle').value.trim();
-            const date = document.getElementById('inputDate').value;
-            const calendar = document.getElementById('inputCalendar').value;
-            const start = document.getElementById('inputStart').value;
-            const end = document.getElementById('inputEnd').value;
-            const color = document.getElementById('inputColor').value;
-            if (!title || !date || !start || !end) { alert('Please fill in all fields.'); return; }
-            if (start >= end) { alert('Start time must be before end time.'); return; }
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('events')
-                    .insert([{
-                        title,
-                        calendar,
-                        event_date: date,
-                        start_time: start,
-                        end_time: end,
-                        color,
-                        type: 'manual'
-                    }])
-                    .select();
-
-                if (error) {
-                    alert('Failed to save event: ' + error.message);
-                    return;
-                }
-
-                const newEvent = {
-                    id: data[0].id,
-                    title,
-                    calendar,
-                    date,
-                    start,
-                    end,
-                    color,
-                    type: 'manual'
-                };
-                state.events.push(newEvent);
-
-                closeModal();
-                if (activeView === 'calendar') render();
-                else renderDashboard();
-            } catch (err) {
-                console.error('Error adding event:', err);
-                alert('Something went wrong while saving the event.');
-            }
-        }
-
-        async function deleteEvent(id) {
-            if (confirm('Are you sure you want to delete this event?')) {
-                try {
-                    const { error } = await supabaseClient
-                        .from('events')
-                        .delete()
-                        .eq('id', id);
-
-                    if (error) {
-                        alert('Failed to delete event: ' + error.message);
-                        return;
-                    }
-
-                    state.events = state.events.filter(e => e.id !== id);
-                    if (activeView === 'calendar') render();
-                    else renderDashboard();
-                } catch (err) {
-                    console.error('Error deleting event:', err);
-                    alert('Something went wrong while deleting the event.');
-                }
-            }
-        }
-
-        // --- Drag and Drop Logic ---
-        let draggedEventId = null;
-
-        function dragStart(e, id) {
-            draggedEventId = id;
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', id);
-            setTimeout(() => e.target.style.opacity = '0.5', 0);
-        }
-
-        function dragEnd(e) { e.target.style.opacity = '1'; }
-
-        function allowDrop(e) { e.preventDefault();
-            e.dataTransfer.dropEffect = 'move'; }
-
-        async function drop(e, newDate) {
-            e.preventDefault();
-            if (draggedEventId !== null) {
-                const eventIndex = state.events.findIndex(ev => ev.id === draggedEventId);
-                if (eventIndex !== -1) {
-                    state.events[eventIndex].date = newDate;
-                    try {
-                        const { error } = await supabaseClient
-                            .from('events')
-                            .update({ event_date: newDate })
-                            .eq('id', draggedEventId);
-                        if (error) console.error('Failed to update event date:', error);
-                    } catch (err) {
-                        console.error('Error updating event date:', err);
-                    }
-                    if (activeView === 'calendar') render();
-                    else renderDashboard();
-                }
-                draggedEventId = null;
-            }
-        }
-
-        // --- View Renderers ---
         function render() {
             if (activeView !== 'calendar') return;
-            document.querySelectorAll('.calendar-list li').forEach(li => li.classList.remove('selected-creation'));
-            const activeItems = document.querySelectorAll('.calendar-list li');
-            activeItems.forEach(li => {
-                if (li.innerText.trim() === state.activeCalendar) { li.classList.add('selected-creation'); }
-            });
+            if (state._renderLock) { throttleRender(); return; }
+            state._renderLock = true;
+            try {
+                updateSidebar();
+                const header = $('headerDate'),
+                    grid = $('calendarGrid');
+                if (!header || !grid) { state._renderLock = false; return; }
 
-            const header = document.getElementById('headerDate');
-            const grid = document.getElementById('calendarGrid');
-            let filteredEvents = state.events.filter(e => e.calendar === state.activeCalendar);
+                const filtered = state.events.filter(e =>
+                    e.calendar === state.activeCalendar && e.type !== 'routine'
+                );
 
-            if (state.view === 'Week' || state.view === 'Agenda') {
-                const start = getWeekStart(state.currentDate);
-                const end = new Date(start);
-                end.setDate(end.getDate() + 6);
-                const opts = { month: 'long', day: 'numeric' };
-                header.innerText =
-                    `${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`;
-            } else if (state.view === 'Day') {
-                header.innerText = state.currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long',
-                    day: 'numeric', year: 'numeric' });
-            } else if (state.view === 'Month') {
-                header.innerText = state.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                if (state.view === 'Week' || state.view === 'Agenda') {
+                    const start = getWeekStart(state.currentDate);
+                    const end = new Date(start);
+                    end.setDate(end.getDate() + 6);
+                    header.innerText =
+                        `${start.toLocaleDateString('en-US',{month:'long',day:'numeric'})} – ${end.toLocaleDateString('en-US',{month:'long',day:'numeric'})}`;
+                } else if (state.view === 'Day') {
+                    header.innerText = state.currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long',
+                        day: 'numeric', year: 'numeric' });
+                } else if (state.view === 'Month') {
+                    header.innerText = state.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                }
+
+                grid.innerHTML = '';
+                if (state.view === 'Month') renderMonth(grid, filtered);
+                else if (state.view === 'Agenda') renderAgenda(grid, filtered);
+                else renderWeekDay(grid, filtered);
+            } finally {
+                state._renderLock = false;
             }
-
-            grid.innerHTML = '';
-            if (state.view === 'Month') renderMonthView(grid, filteredEvents);
-            else if (state.view === 'Agenda') renderAgendaView(grid, filteredEvents);
-            else renderWeekDayView(grid, filteredEvents);
         }
 
-        function renderWeekDayView(container, filteredEvents) {
+        function renderWeekDay(container, filtered) {
             const isWeek = state.view === 'Week';
-            const startDate = isWeek ? getWeekStart(state.currentDate) : state.currentDate;
-            const daysCount = isWeek ? 7 : 1;
-            const days = getDaysArray(startDate, daysCount);
+            const start = isWeek ? getWeekStart(state.currentDate) : state.currentDate;
+            const days = getDays(start, isWeek ? 7 : 1);
             const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-            let html = `<div class="grid-header-row">`;
-            if (state.view === 'Day') { html += `<div class="time-col"></div>`; }
-            days.forEach(d => { html += `<div class="day-col">${dayNames[d.getDay()]} ${d.getDate()}</div>`; });
+            let html =
+                `<div class="grid-header-row">${state.view==='Day'?'<div class="time-col"></div>':''}`;
+            days.forEach(d => {
+                const isToday = formatDate(d) === formatDate(new Date());
+                const cls = isToday ? ' style="color:var(--cyan);font-weight:600;"' : '';
+                html +=
+                    `<div class="day-col"${cls}>${dayNames[d.getDay()]} ${d.getDate()}</div>`;
+            });
             html += `</div><div class="grid-body">`;
 
             if (state.view === 'Day') {
                 html += `<div class="time-col">`;
                 for (let h = 8; h <= 20; h++) {
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    const hour12 = h > 12 ? h - 12 : h;
-                    html += `<div class="time-slot">${hour12}:00 ${ampm}</div>`;
+                    const ap = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h > 12 ? h - 12 : h;
+                    html += `<div class="time-slot">${h12}:00 ${ap}</div>`;
                 }
                 html += `</div>`;
             }
 
             html += `<div class="days-row">`;
-            days.forEach((day) => {
-                const dateStr = formatDate(day);
-                const eventsToday = filteredEvents.filter(e => e.date === dateStr && e.calendar === state
-                .activeCalendar);
-                html += `<div class="day-column" data-date="${dateStr}" ondragover="allowDrop(event)" ondrop="drop(event, '${dateStr}')">`;
+            days.forEach(day => {
+                const ds = formatDate(day);
+                const evs = filtered.filter(e => e.date === ds);
+                html +=
+                    `<div class="day-column" data-date="${ds}" ondragover="allowDrop(event)" ondrop="drop(event,'${ds}')">`;
+
                 for (let h = 8; h <= 20; h++) {
-                    const timeStr = `${String(h).padStart(2, '0')}:00`;
-                    html += `<div class="bg-line clickable" onclick="openModal('${dateStr}', '${timeStr}')"></div>`;
+                    const ts = `${String(h).padStart(2,'0')}:00`;
+                    html += `<div class="bg-line clickable" onclick="openModal('${ds}','${ts}')"></div>`;
                 }
-                eventsToday.forEach(event => {
-                    const startH = parseInt(event.start.split(':')[0]);
-                    const startM = parseInt(event.start.split(':')[1]);
-                    const endH = parseInt(event.end.split(':')[0]);
-                    const endM = parseInt(event.end.split(':')[1]);
-                    const startOffset = (startH - 8) * 76 + (startM / 60) * 76;
-                    const duration = (endH - startH) * 76 + ((endM - startM) / 60) * 76;
-                    const colorHex = colors[event.color];
-                    const rgb = hexToRgb(colorHex);
-                    const inlineStyle =
-                        `background: linear-gradient(135deg, rgba(${rgb.r},${rgb.g},${rgb.b}, 0.15), rgba(${rgb.r},${rgb.g},${rgb.b}, 0.02)); border-left: 3px solid ${colorHex}; box-shadow: 0 4px 16px rgba(${rgb.r},${rgb.g},${rgb.b}, 0.1); top: ${startOffset}px; height: ${duration}px;`;
+
+                evs.forEach(ev => {
+                    const sh = parseInt(ev.start, 10) || 0;
+                    const sm = parseInt(ev.start.split(':')[1], 10) || 0;
+                    const eh = parseInt(ev.end, 10) || 0;
+                    const em = parseInt(ev.end.split(':')[1], 10) || 0;
+                    const top = (sh - 8) * 76 + (sm / 60) * 76;
+                    const dur = (eh - sh) * 76 + ((em - sm) / 60) * 76;
+                    const ch = COLORS[ev.color] || '#06b6d4';
+                    const rgb = hexToRgb(ch);
+                    const style =
+                        `background:linear-gradient(135deg,rgba(${rgb.r},${rgb.g},${rgb.b},0.15),rgba(${rgb.r},${rgb.g},${rgb.b},0.02));border-left:3px solid ${ch};box-shadow:0 4px 16px rgba(${rgb.r},${rgb.g},${rgb.b},0.1);top:${Math.max(0,top)}px;height:${Math.max(20,dur)}px;`;
+
                     html += `
-                        <div class="event-card" draggable="true" style="${inlineStyle}" ondragstart="dragStart(event, ${event.id})" ondragend="dragEnd(event)" onclick="alert('Event: ${event.title}\nTime: ${event.start}-${event.end}')">
-                            <div class="event-delete" onclick="event.stopPropagation(); deleteEvent(${event.id})"><i class="fas fa-times-circle"></i></div>
-                            <div class="event-time">${event.start} - ${event.end}</div>
-                            <div class="event-title">${event.title}</div>
-                        </div>
-                    `;
+                        <div class="event-card" draggable="true" style="${style}" ondragstart="dragStart(event,${ev.id})" ondragend="dragEnd(event)" onclick="showToast('${ev.title.replace(/'/g,"\\'")}: ${ev.start} – ${ev.end}')">
+                            <div class="event-delete" onclick="event.stopPropagation();deleteEvent(${ev.id})"><i class="fas fa-times-circle"></i></div>
+                            <div class="event-time">${ev.start} – ${ev.end}</div>
+                            <div class="event-title">${ev.title}</div>
+                        </div>`;
                 });
+
                 html += `</div>`;
             });
             html += `</div></div>`;
             container.innerHTML = html;
 
-            const now = new Date();
-            const todayStr = formatDate(now);
-            const isCurrentWeek = days.some(d => formatDate(d) === todayStr);
-            if (isCurrentWeek && state.view === 'Day') {
-                const hours = now.getHours();
-                const mins = now.getMinutes();
-                if (hours >= 8 && hours <= 20) {
-                    const topOffset = (hours - 8) * 76 + (mins / 60) * 76;
-                    const daysRow = container.querySelector('.days-row');
-                    if (daysRow) {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'current-time-indicator';
-                        indicator.style.top = `${topOffset}px`;
-                        daysRow.appendChild(indicator);
+            if (state.view === 'Day') {
+                const now = new Date(),
+                    todayStr = formatDate(now);
+                if (days.some(d => formatDate(d) === todayStr)) {
+                    const hh = now.getHours(),
+                        mm = now.getMinutes();
+                    if (hh >= 8 && hh <= 20) {
+                        const top = (hh - 8) * 76 + (mm / 60) * 76;
+                        const row = container.querySelector('.days-row');
+                        if (row && !row.querySelector('.current-time-indicator')) {
+                            const ind = document.createElement('div');
+                            ind.className = 'current-time-indicator';
+                            ind.style.top = `${top}px`;
+                            row.appendChild(ind);
+                        }
                     }
                 }
             }
         }
 
-        // --- MONTH VIEW — FULLY RECREATED with flex, no CSS grid, now scrollable ---
-        function renderMonthView(container, filteredEvents) {
+        function renderMonth(container, filtered) {
             const year = state.currentDate.getFullYear();
             const month = state.currentDate.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
+            const first = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            let html = `<div class="grid-header-row">`;
-            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => html += `<div class="day-col">${d}</div>`);
-            html += `</div>`;
+            let html =
+                `<div class="grid-header-row">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="day-col">${d}</div>`).join('')}</div><div style="flex:1;overflow-y:auto;"><div class="month-flex-container" style="border-top:none;">`;
 
-            html += `<div style="flex:1; overflow-y:auto;">`;
-            html += `<div class="month-flex-container" style="border-top:none;">`;
+            let day = 1,
+                cur = [];
+            for (let i = 0; i < first; i++) cur.push(null);
 
-            let day = 1;
-            let weekCells = [];
-
-            // Build weeks as arrays of day numbers (null for empty)
-            const weeks = [];
-            let currentWeek = [];
-
-            // Fill leading empty cells
-            for (let i = 0; i < firstDay; i++) {
-                currentWeek.push(null);
-            }
+            const renderWeek = (w, y, m, evs) => {
+                let wkHtml = `<div class="month-flex-row">`;
+                w.forEach(dn => {
+                    if (dn === null) {
+                        wkHtml += `<div class="month-flex-cell empty"></div>`;
+                        return;
+                    }
+                    const dObj = new Date(y, m, dn);
+                    const ds = formatDate(dObj);
+                    const tod = evs.filter(e => e.date === ds);
+                    wkHtml += `<div class="month-flex-cell" onclick="openModal('${ds}','09:00')">`;
+                    wkHtml += `<div class="day-number">${dn}</div>`;
+                    tod.forEach(e => {
+                        wkHtml +=
+                            `<div class="month-event" style="border-color:${COLORS[e.color]||'#06b6d4'};" onclick="event.stopPropagation();showToast('${e.title.replace(/'/g,"\\'")}')">${e.title}</div>`;
+                    });
+                    wkHtml += `</div>`;
+                });
+                wkHtml += `</div>`;
+                return wkHtml;
+            };
 
             while (day <= daysInMonth) {
-                currentWeek.push(day);
-                if (currentWeek.length === 7) {
-                    weeks.push(currentWeek);
-                    currentWeek = [];
+                cur.push(day);
+                if (cur.length === 7) {
+                    html += renderWeek(cur, year, month, filtered);
+                    cur = [];
                 }
                 day++;
             }
-
-            // Fill trailing empty cells
-            while (currentWeek.length < 7) {
-                currentWeek.push(null);
-            }
-            if (currentWeek.length > 0) {
-                weeks.push(currentWeek);
-            }
-
-            // Render each week as a flex row
-            weeks.forEach(week => {
-                html += `<div class="month-flex-row">`;
-                week.forEach(dayNum => {
-                    if (dayNum === null) {
-                        html += `<div class="month-flex-cell empty"></div>`;
-                    } else {
-                        const dateObj = new Date(year, month, dayNum);
-                        const dateStr = formatDate(dateObj);
-                        const eventsToday = filteredEvents.filter(e => e.date === dateStr && e.calendar ===
-                            state.activeCalendar);
-                        html += `<div class="month-flex-cell" onclick="openModal('${dateStr}', '09:00')">`;
-                        html += `<div class="day-number">${dayNum}</div>`;
-                        eventsToday.forEach(e => {
-                            html +=
-                                `<div class="month-event" style="border-color: ${colors[e.color]};" onclick="event.stopPropagation(); alert('${e.title}')">${e.title}</div>`;
-                        });
-                        html += `</div>`;
-                    }
-                });
-                html += `</div>`;
-            });
+            while (cur.length < 7) cur.push(null);
+            if (cur.length) html += renderWeek(cur, year, month, filtered);
 
             html += `</div></div>`;
             container.innerHTML = html;
         }
 
-        function renderAgendaView(container, filteredEvents) {
-            const start = getWeekStart(state.currentDate);
-            const days = getDaysArray(start, 7);
-            let eventsToShow = [];
+        function renderAgenda(container, filtered) {
+            const days = getDays(getWeekStart(state.currentDate), 7);
+            const items = [];
             days.forEach(day => {
-                const dateStr = formatDate(day);
-                filteredEvents.forEach(e => {
-                    if (e.date === dateStr && e.calendar === state.activeCalendar) {
-                        eventsToShow.push({ ...e, dayObj: day });
-                    }
+                const ds = formatDate(day);
+                filtered.forEach(e => {
+                    if (e.date === ds) items.push({ ...e, dayObj: day });
                 });
             });
-            eventsToShow.sort((a, b) => (a.dayObj - b.dayObj) || (a.start.localeCompare(b.start)));
+            items.sort((a, b) => (a.dayObj - b.dayObj) || a.start.localeCompare(b.start));
+
             let html = `<div class="agenda-list">`;
-            if (eventsToShow.length === 0) {
+            if (!items.length) {
                 html +=
-                    `<div style="color:var(--text-secondary); text-align:center; padding: 40px; font-size:14px;">✨ No events this week.</div>`;
+                    `<div style="color:var(--text-secondary);text-align:center;padding:40px;font-size:14px;">No events this week.</div>`;
             } else {
-                eventsToShow.forEach(e => {
-                    const dateStr = e.dayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short',
+                items.forEach(e => {
+                    const ds = e.dayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short',
                         day: 'numeric' });
+                    const ch = COLORS[e.color] || '#06b6d4';
                     html += `
-                        <div class="agenda-item" style="border-left-color: ${colors[e.color]};" onclick="alert('${e.title}')">
-                            <div class="date">${dateStr}</div>
+                        <div class="agenda-item" style="border-left-color:${ch};" onclick="showToast('${e.title.replace(/'/g,"\\'")}: ${e.start} – ${e.end}')">
+                            <div class="date">${ds}</div>
                             <div class="info">
                                 <div class="title">${e.title}</div>
-                                <div class="time">${e.start} - ${e.end} • ${e.calendar}</div>
+                                <div class="time">${e.start} – ${e.end} • ${e.calendar}</div>
                             </div>
-                            <i class="fas fa-times" style="color:var(--text-secondary); cursor:pointer; margin-left:auto; transition: 0.2s; padding:4px;" onclick="event.stopPropagation(); deleteEvent(${e.id})" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='var(--text-secondary)'"></i>
-                        </div>
-                    `;
+                            <i class="fas fa-times" style="color:var(--text-secondary);cursor:pointer;margin-left:auto;transition:0.2s;padding:4px;" onclick="event.stopPropagation();deleteEvent(${e.id})" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='var(--text-secondary)'"></i>
+                        </div>`;
                 });
             }
             html += `</div>`;
             container.innerHTML = html;
         }
 
-        // --- Render Dashboard ---
-        function renderDashboard() {
+        // ─── Dashboard ────────────────────────────────────────────────────────
+
+        async function renderDashboard() {
             if (activeView !== 'dashboard') return;
-            const container = document.getElementById('dashboardContainer');
-            const events = state.events;
+            const container = $('dashboardContainer');
+            if (!container) return;
 
-            if (events.length === 0) {
-                container.innerHTML = `
-                    <div class="dash-empty-state">
-                        <i class="fas fa-calendar-day"></i>
-                        <h3>Your schedule is looking clear.</h3>
-                        <p>Create an event or routine to see your weeks appear here.</p>
-                    </div>
-                `;
-                return;
-            }
+            try {
+                const routines = await loadRoutines();
+                const manual = state.events
+                    .filter(e => e.type !== 'routine')
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            const routines = events.filter(e => e.type === 'routine');
-            const manualEvents = events.filter(e => e.type !== 'routine');
+                let html =
+                    `<div class="dashboard-header"><h1>Timeline</h1><p>Overview of your scheduled weeks and routines.</p></div>`;
 
-            const groupedManual = {};
-            manualEvents.forEach(e => {
-                if (!groupedManual[e.calendar]) groupedManual[e.calendar] = [];
-                groupedManual[e.calendar].push(e);
-            });
-
-            let html =
-                `<div class="dashboard-header"><h1>Timeline</h1><p>Overview of your scheduled weeks.</p></div>`;
-
-            // Routine Fat Bar
-            if (routines.length > 0) {
-                const routine = routines[0];
-                const weekStart = getWeekStart(new Date(routine.date));
-                const monthYearStr = weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                html += `
-                    <div class="routine-fat-bar" onclick="openRoutineModal(false)">
-                        <div class="routine-fat-left">
-                            <i class="fas fa-clock routine-fat-icon"></i>
-                            <div>
-                                <div class="routine-fat-title">Weekly Routine</div>
-                                <div class="routine-fat-sub">Active for ${monthYearStr} • ${routines.length} subjects scheduled</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:var(--text-secondary);"></i>
-                    </div>
-                `;
-            }
-
-            const renderGroup = (title, icon, groupedItems) => {
-                if (Object.keys(groupedItems).length === 0) return '';
-                let groupHtml =
-                    `<div class="dashboard-section"><div class="dashboard-section-title"><i class="fas ${icon} dash-calendar-icon"></i> ${title}</div>`;
-                Object.keys(groupedItems).forEach(calName => {
-                    const items = groupedItems[calName];
-                    const groupedByWeek = {};
-                    items.forEach(e => {
-                        const weekStart = getWeekStart(new Date(e.date));
-                        const key = formatDate(weekStart);
-                        if (!groupedByWeek[key]) groupedByWeek[key] = { startDate: weekStart, events: [] };
-                        groupedByWeek[key].events.push(e);
+                if (routines.length) {
+                    html +=
+                        `<div class="dashboard-section"><div class="dashboard-section-title"><i class="fas fa-clock"></i> Your Routines</div><div class="routine-list">`;
+                    routines.forEach(r => {
+                        const safeName = (r.name || 'Unnamed').replace(/'/g, "\\'");
+                        html += `
+                            <div class="routine-card" onclick="openRoutineModal(${r.id},'${safeName}')">
+                                <div class="routine-card-left"><i class="fas fa-clock routine-card-icon"></i><span class="routine-card-name">${r.name}</span></div>
+                                <div class="routine-card-actions">
+                                    <button onclick="event.stopPropagation();renameRoutine(${r.id},'${safeName}')"><i class="fas fa-pen"></i> Rename</button>
+                                    <button class="btn-delete" onclick="event.stopPropagation();deleteRoutine(${r.id})"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </div>`;
                     });
-                    const sortedKeys = Object.keys(groupedByWeek).sort((a, b) => a.localeCompare(b));
-                    sortedKeys.forEach(key => {
-                        const group = groupedByWeek[key];
-                        const start = group.startDate;
-                        const end = new Date(start);
-                        end.setDate(end.getDate() + 6);
-                        const monthYearStr = start.toLocaleDateString('en-US', { month: 'long',
-                        year: 'numeric' });
-                        const rangeStr =
-                            `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-                        groupHtml +=
-                            `<div class="week-group" onclick="navigateToWeek('${key}')"><div class="week-month-year">${monthYearStr}</div><div class="week-range">${rangeStr}</div><div class="week-events">`;
-                        group.events.forEach(e => {
-                            const hex = colors[e.color];
-                            groupHtml +=
-                                `<div class="dash-event-item" style="border-left-color: ${hex};"><div class="dash-event-dot" style="background: ${hex};"></div><div class="dash-event-title">${e.title}</div><div class="dash-event-time">${e.start} - ${e.end}</div></div>`;
-                        });
-                        groupHtml += `</div></div>`;
+                    html += `</div></div>`;
+                }
+
+                if (manual.length) {
+                    html +=
+                        `<div class="dashboard-section"><div class="dashboard-section-title"><i class="fas fa-calendar-day"></i> Your Events</div><div class="event-list">`;
+                    manual.forEach(e => {
+                        const d = new Date(e.date);
+                        const ds = isValidDate(d) ? d.toLocaleDateString('en-US', { weekday: 'short',
+                            month: 'short', day: 'numeric' }) : e.date;
+                        const ch = COLORS[e.color] || '#06b6d4';
+                        const safeTitle = (e.title || 'Untitled').replace(/'/g, "\\'");
+                        html += `
+                            <div class="event-list-item" onclick="navigateToEvent('${e.calendar}','${e.date}')" style="border-left-color:${ch};">
+                                <div class="event-list-info"><div class="event-list-title">${e.title}</div><div class="event-list-date">${ds} • ${e.start} – ${e.end} • ${e.calendar}</div></div>
+                                <i class="fas fa-chevron-right" style="color:var(--text-secondary);font-size:12px;"></i>
+                            </div>`;
                     });
-                });
-                groupHtml += `</div>`;
-                return groupHtml;
-            };
+                    html += `</div></div>`;
+                }
 
-            if (Object.keys(groupedManual).length > 0) {
-                html += renderGroup('Schedules & Notes', 'fa-calendar-alt', groupedManual);
+                if (!routines.length && !manual.length) {
+                    html +=
+                        `<div class="dash-empty-state" style="text-align:center;padding:40px;color:var(--text-secondary);"><i class="fas fa-calendar-day" style="font-size:32px;display:block;margin-bottom:16px;"></i><h3 style="color:var(--text-primary);">Your schedule is looking clear.</h3><p>Create an event or routine to get started.</p></div>`;
+                }
+
+                container.innerHTML = html;
+            } catch (e) {
+                console.error('Dashboard render error:', e);
+                container.innerHTML =
+                    `<div style="text-align:center;padding:40px;color:var(--text-secondary);">Error loading dashboard. Please refresh.</div>`;
             }
-
-            container.innerHTML = html;
         }
 
-        function navigateToWeek(dateStr) {
-            state.currentDate = new Date(dateStr);
-            state.view = 'Week';
-            const spans = document.querySelectorAll('#viewToggle span');
-            spans.forEach(s => s.classList.remove('active'));
-            Array.from(spans).find(s => s.innerText === 'Week').classList.add('active');
+        function navigateToEvent(cal, dateStr) {
+            state.activeCalendar = cal;
+            state.selectedCalendar = cal;
+            updateSidebar();
+            const d = new Date(dateStr);
+            if (isValidDate(d)) state.currentDate = d;
+            state.view = 'Day';
+            qsa('#viewToggle span').forEach(s => s.classList.remove('active'));
+            const target = qsa('#viewToggle span').find(s => s.innerText === 'Day');
+            if (target) target.classList.add('active');
             switchView('calendar');
         }
 
-        // --- Initial Load (Non‑blocking, shows empty UI first) ---
-        switchView('calendar'); // Render immediately with empty events
-        loadEvents().then(() => {
-            // Once events are loaded, refresh the view so they appear
-            if (activeView === 'calendar') render();
-            else renderDashboard();
-        });
+        // ─── Init ─────────────────────────────────────────────────────────────
 
-        document.getElementById('eventModal').addEventListener('click', function(e) { if (e.target === this)
-            closeModal(); });
-        document.getElementById('routineModal').addEventListener('click', function(e) { if (e.target === this)
-                closeRoutineModal(); });
-        document.getElementById('loginModal').addEventListener('click', function(e) { if (e.target === this)
-            closeLoginModal(); });
-    </script>
-
-    <!-- INTRO ANIMATION (unchanged from original, minus the #dashboard-view line) -->
-    <script type="module">
-        (async () => {
-            let THREE;
-            try {
-                THREE = await import('three');
-            } catch (e) {
-                THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
-            }
-            let EffectComposer, RenderPass, UnrealBloomPass, ShaderPass;
-            try {
-                ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
-                ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
-                ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
-                ({ ShaderPass } = await import('three/addons/postprocessing/ShaderPass.js'));
-            } catch (e) {
-                ({ EffectComposer } = await import('https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js'));
-                ({ RenderPass } = await import('https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/RenderPass.js'));
-                ({ UnrealBloomPass } = await import('https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js'));
-                ({ ShaderPass } = await import('https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js'));
-            }
-
-            // --- 3D Simplex Noise ---
-            const grad3 = [
-                [1, 1, 0],
-                [-1, 1, 0],
-                [1, -1, 0],
-                [-1, -1, 0],
-                [1, 0, 1],
-                [-1, 0, 1],
-                [1, 0, -1],
-                [-1, 0, -1],
-                [0, 1, 1],
-                [0, -1, 1],
-                [0, 1, -1],
-                [0, -1, -1]
-            ];
-            const p = [];
-            for (let i = 0; i < 256; i++) p[i] = Math.floor(Math.random() * 256);
-            const perm = new Array(512);
-            for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
-
-            function dot3(g, x, y, z) { return g[0] * x + g[1] * y + g[2] * z; }
-
-            function noise3D(xin, yin, zin) {
-                let n0, n1, n2, n3;
-                const F3 = 1.0 / 3.0,
-                    G3 = 1.0 / 6.0;
-                const s = (xin + yin + zin) * F3;
-                const i = Math.floor(xin + s),
-                    j = Math.floor(yin + s),
-                    k = Math.floor(zin + s);
-                const t = (i + j + k) * G3;
-                const X0 = i - t,
-                    Y0 = j - t,
-                    Z0 = k - t;
-                const x0 = xin - X0,
-                    y0 = yin - Y0,
-                    z0 = zin - Z0;
-                let i1, j1, k1, i2, j2, k2;
-                if (x0 >= y0) {
-                    if (y0 >= z0) { i1 = 1;
-                        j1 = 0;
-                        k1 = 0;
-                        i2 = 1;
-                        j2 = 1;
-                        k2 = 0; } else if (x0 >= z0) { i1 = 1;
-                        j1 = 0;
-                        k1 = 0;
-                        i2 = 1;
-                        j2 = 0;
-                        k2 = 1; } else { i1 = 0;
-                        j1 = 0;
-                        k1 = 1;
-                        i2 = 1;
-                        j2 = 0;
-                        k2 = 1; }
-                } else {
-                    if (y0 < z0) { i1 = 0;
-                        j1 = 0;
-                        k1 = 1;
-                        i2 = 0;
-                        j2 = 1;
-                        k2 = 1; } else if (x0 < z0) { i1 = 0;
-                        j1 = 0;
-                        k1 = 1;
-                        i2 = 0;
-                        j2 = 1;
-                        k2 = 1; } else { i1 = 0;
-                        j1 = 1;
-                        k1 = 0;
-                        i2 = 1;
-                        j2 = 1;
-                        k2 = 0; }
-                }
-                const x1 = x0 - i1 + G3,
-                    y1 = y0 - j1 + G3,
-                    z1 = z0 - k1 + G3;
-                const x2 = x0 - i2 + 2 * G3,
-                    y2 = y0 - j2 + 2 * G3,
-                    z2 = z0 - k2 + 2 * G3;
-                const x3 = x0 - 1 + 3 * G3,
-                    y3 = y0 - 1 + 3 * G3,
-                    z3 = z0 - 1 + 3 * G3;
-                const ii = i & 255,
-                    jj = j & 255,
-                    kk = k & 255;
-                let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
-                if (t0 < 0) n0 = 0;
-                else { t0 *= t0;
-                    n0 = t0 * t0 * dot3(grad3[perm[ii + perm[jj + perm[kk]]] % 12], x0, y0, z0); }
-                let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
-                if (t1 < 0) n1 = 0;
-                else { t1 *= t1;
-                    n1 = t1 * t1 * dot3(grad3[perm[ii + i1 + perm[jj + j1 + perm[kk + k1]]] % 12], x1, y1,
-                    z1); }
-                let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
-                if (t2 < 0) n2 = 0;
-                else { t2 *= t2;
-                    n2 = t2 * t2 * dot3(grad3[perm[ii + i2 + perm[jj + j2 + perm[kk + k2]]] % 12], x2, y2,
-                    z2); }
-                let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
-                if (t3 < 0) n3 = 0;
-                else { t3 *= t3;
-                    n3 = t3 * t3 * dot3(grad3[perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] % 12], x3, y3, z3); }
-                return 32.0 * (n0 + n1 + n2 + n3);
-            }
-
-            // --- Cloud Textures ---
-            function createEtchedCloudTexture(w, h, drawShapeFn) {
-                const canvas = document.createElement('canvas');
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.save();
-                ctx.beginPath();
-                drawShapeFn(ctx, w / 2, h / 2);
-                ctx.closePath();
-                ctx.fillStyle = '#ffffff';
-                ctx.fill();
-                ctx.clip();
-                ctx.strokeStyle = 'rgba(130, 190, 195, 0.7)';
-                ctx.lineWidth = 2.0;
-                const spacing = 6;
-                for (let y = -h; y < h * 1.5; y += spacing) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(w, y + w);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, y + spacing / 2);
-                    ctx.lineTo(w, y + w + spacing / 2);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(w, y);
-                    ctx.lineTo(0, y + w);
-                    ctx.stroke();
-                }
-                ctx.restore();
-                ctx.beginPath();
-                drawShapeFn(ctx, w / 2, h / 2);
-                ctx.closePath();
-                ctx.strokeStyle = '#8abdc2';
-                ctx.lineWidth = 3.5;
-                ctx.stroke();
-                return new THREE.CanvasTexture(canvas);
-            }
-            const drawCloudA = (ctx, cx, cy) => { const r = 30;
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.arc(cx - 25, cy - 15, r * 0.7, 0, Math.PI * 2);
-                ctx.arc(cx + 25, cy - 10, r * 0.8, 0, Math.PI * 2);
-                ctx.arc(cx - 15, cy + 25, r * 0.6, 0, Math.PI * 2);
-                ctx.arc(cx + 15, cy + 20, r * 0.6, 0, Math.PI * 2);
-                ctx.arc(cx, cy - 25, r * 0.5, 0, Math.PI * 2); };
-            const drawCloudB = (ctx, cx, cy) => { const r = 25;
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.arc(cx - 35, cy - 5, r * 0.8, 0, Math.PI * 2);
-                ctx.arc(cx + 35, cy - 5, r * 0.8, 0, Math.PI * 2);
-                ctx.arc(cx - 15, cy - 20, r * 0.6, 0, Math.PI * 2);
-                ctx.arc(cx + 15, cy - 20, r * 0.6, 0, Math.PI * 2);
-                ctx.arc(cx - 20, cy + 20, r * 0.5, 0, Math.PI * 2);
-                ctx.arc(cx + 20, cy + 20, r * 0.5, 0, Math.PI * 2); };
-            const drawCloudC = (ctx, cx, cy) => { const r = 22;
-                ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                ctx.arc(cx - 20, cy - 10, r * 0.6, 0, Math.PI * 2);
-                ctx.arc(cx + 20, cy - 10, r * 0.7, 0, Math.PI * 2);
-                ctx.arc(cx, cy + 25, r * 0.5, 0, Math.PI * 2);
-                ctx.arc(cx - 15, cy + 15, r * 0.4, 0, Math.PI * 2); };
-            const textureA = createEtchedCloudTexture(256, 256, drawCloudA);
-            const textureB = createEtchedCloudTexture(256, 256, drawCloudB);
-            const textureC = createEtchedCloudTexture(256, 256, drawCloudC);
-
-            // --- Scene Setup (transparent canvas on white background) ---
-            const introOverlay = document.getElementById('intro-overlay');
-            const scene = new THREE.Scene();
-
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 400);
-            camera.lookAt(0, 0, 0);
-
-            const renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
-                powerPreference: "high-performance"
+        (function init() {
+            switchView('calendar');
+            loadEvents().then(() => {
+                if (activeView === 'calendar') render();
+                else renderDashboard();
+                subscribeRealtime();
+            }).catch(e => {
+                console.error('Init load error:', e);
+                if (activeView === 'calendar') render();
+                else renderDashboard();
             });
-            renderer.setClearColor(0x000000, 0);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.2;
-            introOverlay.appendChild(renderer.domElement);
 
-            // --- Post-Processing: Bloom + Radial Smear ---
-            const composer = new EffectComposer(renderer);
-            composer.addPass(new RenderPass(scene, camera));
-            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.1,
-                0.5, 0.1);
-            composer.addPass(bloomPass);
-
-            const RadialBlurShader = {
-                uniforms: {
-                    tDiffuse: { value: null },
-                    uZoomIntensity: { value: 0.0 },
-                    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-                },
-                vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-                }`,
-                fragmentShader: `
-                uniform sampler2D tDiffuse;
-                uniform float uZoomIntensity;
-                uniform vec2 uResolution;
-                varying vec2 vUv;
-                void main() {
-                    vec2 center = vec2(0.5, 0.5);
-                    vec2 uv = vUv;
-                    vec2 dir = uv - center;
-                    float dist = length(dir);
-                    vec4 color = texture2D(tDiffuse, uv);
-                    for (float i = 1.0; i <= 8.0; i++) {
-                        float offset = uZoomIntensity * i * 0.006 * dist;
-                        vec2 sampleUV = uv - dir * offset;
-                        color += texture2D(tDiffuse, sampleUV);
-                    }
-                    gl_FragColor = color / 9.0;
-                }`
-            };
-            const radialBlurPass = new ShaderPass(RadialBlurShader);
-            radialBlurPass.renderToScreen = true;
-            composer.addPass(radialBlurPass);
-
-            // --- Particles (cloud physics) ---
-            const CLOUD_COUNT = 700;
-            const cloudSprites = [];
-            const textures = [textureA, textureB, textureC];
-            const pos = new Float32Array(CLOUD_COUNT * 3);
-            const vel = new Float32Array(CLOUD_COUNT * 3);
-            for (let i = 0; i < CLOUD_COUNT; i++) {
-                const x = (Math.random() - 0.5) * 1200;
-                const y = (Math.random() - 0.5) * 900;
-                const z = (Math.random() - 0.5) * 300;
-                pos[i * 3] = x;
-                pos[i * 3 + 1] = y;
-                pos[i * 3 + 2] = z;
-                vel[i * 3] = 0;
-                vel[i * 3 + 1] = 0;
-                vel[i * 3 + 2] = 0;
-                const material = new THREE.SpriteMaterial({
-                    map: textures[Math.floor(Math.random() * textures.length)],
-                    transparent: true,
-                    opacity: 0.95,
-                    depthTest: true,
-                    depthWrite: false,
-                    blending: THREE.NormalBlending,
+            qsa('.calendar-list li').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    qsa('.calendar-list li').forEach(li => li.classList.remove('active', 'selected-creation',
+                        'disabled'));
+                    this.classList.add('active', 'selected-creation');
+                    qsa('.calendar-list li').forEach(li => {
+                        if (li !== this) li.classList.remove('disabled');
+                    });
                 });
-                const sprite = new THREE.Sprite(material);
-                sprite.position.set(x, y, z);
-                const baseScale = 60 + Math.random() * 50;
-                sprite.scale.set(baseScale, baseScale, 1);
-                sprite.userData.baseScale = baseScale;
-                scene.add(sprite);
-                cloudSprites.push(sprite);
-            }
-
-            // Stardust
-            const dustCount = 2000;
-            const dustGeo = new THREE.BufferGeometry();
-            const dustPos = new Float32Array(dustCount * 3);
-            const dustSizes = new Float32Array(dustCount);
-            const dustVel = new Float32Array(dustCount * 3);
-            for (let i = 0; i < dustCount; i++) {
-                dustPos[i * 3] = (Math.random() - 0.5) * 2000;
-                dustPos[i * 3 + 1] = (Math.random() - 0.5) * 1500;
-                dustPos[i * 3 + 2] = (Math.random() - 0.5) * 600 - 300;
-                dustSizes[i] = 2 + Math.random() * 8;
-                dustVel[i * 3] = (Math.random() - 0.5) * 0.5;
-                dustVel[i * 3 + 1] = (Math.random() - 0.5) * 0.5;
-                dustVel[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
-            }
-            dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-            dustGeo.setAttribute('size', new THREE.BufferAttribute(dustSizes, 1));
-            const dustMat = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 3.5,
-                transparent: true,
-                opacity: 0.4,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                sizeAttenuation: true,
+                item.addEventListener('mouseleave', () => updateSidebar());
             });
-            const dustSystem = new THREE.Points(dustGeo, dustMat);
-            scene.add(dustSystem);
 
-            // --- Camera zoom & smear controller (animation unchanged, fade starts earlier and is slower) ---
-            let time = 0;
-            const clock = new THREE.Clock();
-            let animationId = null;
-            let fadeStarted = false;
+            qsa('.nav-center a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    qsa('.nav-center a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+                link.addEventListener('mouseleave', function() {
+                    qsa('.nav-center a').forEach(l => l.classList.remove('active'));
+                    const v = activeView;
+                    qsa('.nav-center a').forEach(l => {
+                        if (l.innerText.trim().toLowerCase() === v) l.classList.add('active');
+                    });
+                });
+            });
 
-            const ZOOM_START = 0.5;
-            const ZOOM_DURATION = 1.2;
-            const START_Z = 400;
-            const END_Z = 50;
-
-            // Start fading much earlier: at 50% of the zoom duration
-            const FADE_START_TIME = ZOOM_START + ZOOM_DURATION * 0.5;
-
-            function easeInQuad(t) { return t * t; }
-
-            function animate() {
-                const delta = clock.getDelta();
-                time += delta;
-
-                if (time < ZOOM_START) {
-                    camera.position.z = START_Z;
-                } else {
-                    const elapsed = time - ZOOM_START;
-                    const t = Math.min(elapsed / ZOOM_DURATION, 1.0);
-                    const eased = easeInQuad(t);
-                    camera.position.z = START_Z - eased * (START_Z - END_Z);
-                    let intensity = 0;
-                    if (t < 1.0) {
-                        intensity = t * 2.5;
-                    } else {
-                        intensity = Math.max(0, 2.5 - (time - (ZOOM_START + ZOOM_DURATION)) * 6.0);
-                    }
-                    radialBlurPass.uniforms.uZoomIntensity.value = intensity;
+            ['eventModal', 'routineModal', 'loginModal', 'routineNameModal', 'customConfirmModal', 'customPromptModal'].forEach(id => {
+                const el = $(id);
+                if (el) {
+                    el.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            if (id === 'eventModal') closeModal();
+                            else if (id === 'routineModal') closeRoutineModal();
+                            else if (id === 'loginModal') closeLoginModal();
+                            else if (id === 'routineNameModal') closeRoutineNameModal();
+                            else if (id === 'customConfirmModal') customConfirmCancel();
+                            else if (id === 'customPromptModal') customPromptCancel();
+                        }
+                    });
                 }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName ===
+                    'SELECT') return;
+                if (e.key === 'ArrowLeft') changeDate(-1);
+                else if (e.key === 'ArrowRight') changeDate(1);
+                else if (e.key === 't' || e.key === 'T') goToToday();
+            });
+        })();
+
+        // ─── Intro Animation ────────────────────────────────────────────────────
+        (async () => {
+            try {
+                const THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+                const { EffectComposer } = await import(
+                    'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js');
+                const { RenderPass } = await import(
+                    'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/RenderPass.js');
+                const { UnrealBloomPass } = await import(
+                    'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js');
+                const { ShaderPass } = await import(
+                    'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js');
+
+                const grad3 = [
+                    [1, 1, 0],
+                    [-1, 1, 0],
+                    [1, -1, 0],
+                    [-1, -1, 0],
+                    [1, 0, 1],
+                    [-1, 0, 1],
+                    [1, 0, -1],
+                    [-1, 0, -1],
+                    [0, 1, 1],
+                    [0, -1, 1],
+                    [0, 1, -1],
+                    [0, -1, -1]
+                ];
+                const p = Array.from({ length: 256 }, () => Math.floor(Math.random() * 256));
+                const perm = new Array(512);
+                for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+                function dot3(g, x, y, z) { return g[0] * x + g[1] * y + g[2] * z; }
+
+                function noise3D(xin, yin, zin) {
+                    let n0, n1, n2, n3;
+                    const F3 = 1 / 3,
+                        G3 = 1 / 6;
+                    const s = (xin + yin + zin) * F3;
+                    const i = Math.floor(xin + s),
+                        j = Math.floor(yin + s),
+                        k = Math.floor(zin + s);
+                    const t = (i + j + k) * G3;
+                    const X0 = i - t,
+                        Y0 = j - t,
+                        Z0 = k - t;
+                    const x0 = xin - X0,
+                        y0 = yin - Y0,
+                        z0 = zin - Z0;
+                    let i1, j1, k1, i2, j2, k2;
+                    if (x0 >= y0) {
+                        if (y0 >= z0) { i1 = 1;
+                            j1 = 0;
+                            k1 = 0;
+                            i2 = 1;
+                            j2 = 1;
+                            k2 = 0; } else if (x0 >= z0) { i1 = 1;
+                            j1 = 0;
+                            k1 = 0;
+                            i2 = 1;
+                            j2 = 0;
+                            k2 = 1; } else { i1 = 0;
+                            j1 = 0;
+                            k1 = 1;
+                            i2 = 1;
+                            j2 = 0;
+                            k2 = 1; }
+                    } else {
+                        if (y0 < z0) { i1 = 0;
+                            j1 = 0;
+                            k1 = 1;
+                            i2 = 0;
+                            j2 = 1;
+                            k2 = 1; } else if (x0 < z0) { i1 = 0;
+                            j1 = 0;
+                            k1 = 1;
+                            i2 = 0;
+                            j2 = 1;
+                            k2 = 1; } else { i1 = 0;
+                            j1 = 1;
+                            k1 = 0;
+                            i2 = 1;
+                            j2 = 1;
+                            k2 = 0; }
+                    }
+                    const x1 = x0 - i1 + G3,
+                        y1 = y0 - j1 + G3,
+                        z1 = z0 - k1 + G3;
+                    const x2 = x0 - i2 + 2 * G3,
+                        y2 = y0 - j2 + 2 * G3,
+                        z2 = z0 - k2 + 2 * G3;
+                    const x3 = x0 - 1 + 3 * G3,
+                        y3 = y0 - 1 + 3 * G3,
+                        z3 = z0 - 1 + 3 * G3;
+                    const ii = i & 255,
+                        jj = j & 255,
+                        kk = k & 255;
+                    let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+                    if (t0 < 0) n0 = 0;
+                    else { t0 *= t0;
+                        n0 = t0 * t0 * dot3(grad3[perm[ii + perm[jj + perm[kk]]] % 12], x0, y0, z0); }
+                    let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+                    if (t1 < 0) n1 = 0;
+                    else { t1 *= t1;
+                        n1 = t1 * t1 * dot3(grad3[perm[ii + i1 + perm[jj + j1 + perm[kk + k1]]] % 12], x1, y1, z1); }
+                    let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+                    if (t2 < 0) n2 = 0;
+                    else { t2 *= t2;
+                        n2 = t2 * t2 * dot3(grad3[perm[ii + i2 + perm[jj + j2 + perm[kk + k2]]] % 12], x2, y2, z2); }
+                    let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+                    if (t3 < 0) n3 = 0;
+                    else { t3 *= t3;
+                        n3 = t3 * t3 * dot3(grad3[perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] % 12], x3, y3, z3); }
+                    return 32 * (n0 + n1 + n2 + n3);
+                }
+
+                function makeTex(drawFn) {
+                    const c = document.createElement('canvas');
+                    c.width = c.height = 256;
+                    const ctx = c.getContext('2d');
+                    ctx.save();
+                    ctx.beginPath();
+                    drawFn(ctx, 128, 128);
+                    ctx.closePath();
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    ctx.clip();
+                    ctx.strokeStyle = 'rgba(130,190,195,0.7)';
+                    ctx.lineWidth = 2;
+                    for (let y = -256; y < 384; y += 6) { ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(256, y + 256);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, y + 3);
+                        ctx.lineTo(256, y + 259);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(256, y);
+                        ctx.lineTo(0, y + 256);
+                        ctx.stroke(); }
+                    ctx.restore();
+                    ctx.beginPath();
+                    drawFn(ctx, 128, 128);
+                    ctx.closePath();
+                    ctx.strokeStyle = '#8abdc2';
+                    ctx.lineWidth = 3.5;
+                    ctx.stroke();
+                    return new THREE.CanvasTexture(c);
+                }
+                const drawA = (ctx, cx, cy) => { const r = 30;
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                    ctx.arc(cx - 25, cy - 15, r * 0.7, 0, Math.PI * 2);
+                    ctx.arc(cx + 25, cy - 10, r * 0.8, 0, Math.PI * 2);
+                    ctx.arc(cx - 15, cy + 25, r * 0.6, 0, Math.PI * 2);
+                    ctx.arc(cx + 15, cy + 20, r * 0.6, 0, Math.PI * 2);
+                    ctx.arc(cx, cy - 25, r * 0.5, 0, Math.PI * 2); };
+                const drawB = (ctx, cx, cy) => { const r = 25;
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                    ctx.arc(cx - 35, cy - 5, r * 0.8, 0, Math.PI * 2);
+                    ctx.arc(cx + 35, cy - 5, r * 0.8, 0, Math.PI * 2);
+                    ctx.arc(cx - 15, cy - 20, r * 0.6, 0, Math.PI * 2);
+                    ctx.arc(cx + 15, cy - 20, r * 0.6, 0, Math.PI * 2);
+                    ctx.arc(cx - 20, cy + 20, r * 0.5, 0, Math.PI * 2);
+                    ctx.arc(cx + 20, cy + 20, r * 0.5, 0, Math.PI * 2); };
+                const drawC = (ctx, cx, cy) => { const r = 22;
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                    ctx.arc(cx - 20, cy - 10, r * 0.6, 0, Math.PI * 2);
+                    ctx.arc(cx + 20, cy - 10, r * 0.7, 0, Math.PI * 2);
+                    ctx.arc(cx, cy + 25, r * 0.5, 0, Math.PI * 2);
+                    ctx.arc(cx - 15, cy + 15, r * 0.4, 0, Math.PI * 2); };
+                const texA = makeTex(drawA),
+                    texB = makeTex(drawB),
+                    texC = makeTex(drawC);
+
+                const overlay = document.getElementById('intro-overlay');
+                if (!overlay) return;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 0, 400);
                 camera.lookAt(0, 0, 0);
 
-                // Start the slow fade (3s CSS transition) earlier
-                if (time >= FADE_START_TIME && !fadeStarted) {
-                    fadeStarted = true;
-                    introOverlay.style.opacity = '0';
-                    introOverlay.style.pointerEvents = 'none';
-                    // No dashboard reveal needed here; the app is already visible behind
-                }
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+                renderer.setClearColor(0, 0);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1.2;
+                overlay.appendChild(renderer.domElement);
 
-                // Cloud physics (unchanged)
-                const MAX_DIST = 650;
+                const composer = new EffectComposer(renderer);
+                composer.addPass(new RenderPass(scene, camera));
+                const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.1, 0.5,
+                0.1);
+                composer.addPass(bloom);
+
+                const blurShader = {
+                    uniforms: { tDiffuse: { value: null }, uZoomIntensity: { value: 0 }, uResolution: { value: new THREE
+                                .Vector2(window.innerWidth, window.innerHeight) } },
+                    vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+                    fragmentShader: `uniform sampler2D tDiffuse;uniform float uZoomIntensity;uniform vec2 uResolution;varying vec2 vUv;void main(){vec2 c=vec2(0.5);vec2 uv=vUv;vec2 d=uv-c;float dist=length(d);vec4 col=texture2D(tDiffuse,uv);for(float i=1.;i<=8.;i++){float off=uZoomIntensity*i*0.006*dist;col+=texture2D(tDiffuse,uv-d*off);}gl_FragColor=col/9.;}`
+                };
+                const blurPass = new ShaderPass(blurShader);
+                blurPass.renderToScreen = true;
+                composer.addPass(blurPass);
+
+                const CLOUD_COUNT = 700;
+                const cloudSprites = [];
+                const texs = [texA, texB, texC];
+                const pos = new Float32Array(CLOUD_COUNT * 3),
+                    vel = new Float32Array(CLOUD_COUNT * 3);
                 for (let i = 0; i < CLOUD_COUNT; i++) {
-                    const i3 = i * 3;
-                    let x = pos[i3],
-                        y = pos[i3 + 1],
-                        z = pos[i3 + 2];
-                    const dist = Math.sqrt(x * x + y * y + z * z) + 0.01;
-
-                    const expForce = 0.015 / (dist * 0.08 + 1.0);
-                    vel[i3] += (x / dist) * expForce;
-                    vel[i3 + 1] += (y / dist) * expForce;
-                    vel[i3 + 2] += (z / dist) * expForce * 0.4;
-
-                    const vortexStr = 0.012 * (1.0 - Math.min(dist / 300, 1.0));
-                    vel[i3] += -y * vortexStr + Math.sin(z * 0.02 + time * 0.8) * 0.03;
-                    vel[i3 + 1] += x * vortexStr + Math.cos(z * 0.02 + time * 0.8) * 0.03;
-
-                    const n = noise3D(x * 0.006, y * 0.006, z * 0.006 + time * 0.2);
-                    vel[i3] += n * 0.8;
-                    vel[i3 + 1] += n * 0.8;
-                    vel[i3 + 2] += n * 0.3;
-
-                    vel[i3] += (Math.random() - 0.5) * 0.6;
-                    vel[i3 + 1] += (Math.random() - 0.5) * 0.6;
-                    vel[i3 + 2] += (Math.random() - 0.5) * 0.2;
-
-                    vel[i3] *= 0.98;
-                    vel[i3 + 1] *= 0.98;
-                    vel[i3 + 2] *= 0.98;
-
-                    const speed = Math.sqrt(vel[i3] ** 2 + vel[i3 + 1] ** 2 + vel[i3 + 2] ** 2);
-                    if (speed > 22.0) {
-                        const limit = 22.0 / speed;
-                        vel[i3] *= limit;
-                        vel[i3 + 1] *= limit;
-                        vel[i3 + 2] *= limit;
-                    }
-
-                    pos[i3] += vel[i3] * delta * 30;
-                    pos[i3 + 1] += vel[i3 + 1] * delta * 30;
-                    pos[i3 + 2] += vel[i3 + 2] * delta * 30;
-
-                    const sprite = cloudSprites[i];
-                    sprite.position.set(pos[i3], pos[i3 + 1], pos[i3 + 2]);
-
-                    const newDist = Math.sqrt(pos[i3] ** 2 + pos[i3 + 1] ** 2 + pos[i3 + 2] ** 2);
-                    const scaleFactor = 1.0 + newDist * 0.005;
-                    sprite.scale.set(sprite.userData.baseScale * scaleFactor, sprite.userData.baseScale *
-                        scaleFactor, 1);
-
-                    let opacity = 1.0;
-                    if (newDist > MAX_DIST * 0.5) {
-                        opacity = 1.0 - (newDist - MAX_DIST * 0.5) / (MAX_DIST * 0.5);
-                        opacity = Math.max(0, Math.min(1, opacity));
-                    }
-                    sprite.material.opacity = opacity;
+                    pos[i * 3] = (Math.random() - 0.5) * 1200;
+                    pos[i * 3 + 1] = (Math.random() - 0.5) * 900;
+                    pos[i * 3 + 2] = (Math.random() - 0.5) * 300;
+                    const mat = new THREE.SpriteMaterial({ map: texs[Math.floor(Math.random() * texs.length)],
+                        transparent: true, opacity: 0.95, depthTest: true, depthWrite: false, blending: THREE
+                            .NormalBlending });
+                    const sprite = new THREE.Sprite(mat);
+                    sprite.position.set(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]);
+                    const base = 60 + Math.random() * 50;
+                    sprite.scale.set(base, base, 1);
+                    sprite.userData.baseScale = base;
+                    scene.add(sprite);
+                    cloudSprites.push(sprite);
                 }
 
-                // Stardust (unchanged)
-                const dPos = dustSystem.geometry.attributes.position.array;
-                for (let i = 0; i < dustCount; i++) {
-                    const i3 = i * 3;
-                    dPos[i3] += dustVel[i3] * delta * 10 + Math.sin(time * 0.2 + i) * 0.05;
-                    dPos[i3 + 1] += dustVel[i3 + 1] * delta * 10 + Math.cos(time * 0.2 + i) * 0.05;
-                    dPos[i3 + 2] += dustVel[i3 + 2] * delta * 5;
-                    if (Math.abs(dPos[i3]) > 1500) dPos[i3] *= -0.9;
-                    if (Math.abs(dPos[i3 + 1]) > 1200) dPos[i3 + 1] *= -0.9;
+                const DUST_COUNT = 2000;
+                const dustGeo = new THREE.BufferGeometry();
+                const dustPos = new Float32Array(DUST_COUNT * 3),
+                    dustSizes = new Float32Array(DUST_COUNT),
+                    dustVel = new Float32Array(DUST_COUNT * 3);
+                for (let i = 0; i < DUST_COUNT; i++) {
+                    dustPos[i * 3] = (Math.random() - 0.5) * 2000;
+                    dustPos[i * 3 + 1] = (Math.random() - 0.5) * 1500;
+                    dustPos[i * 3 + 2] = (Math.random() - 0.5) * 600 - 300;
+                    dustSizes[i] = 2 + Math.random() * 8;
+                    dustVel[i * 3] = (Math.random() - 0.5) * 0.5;
+                    dustVel[i * 3 + 1] = (Math.random() - 0.5) * 0.5;
+                    dustVel[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
                 }
-                dustSystem.geometry.attributes.position.needsUpdate = true;
+                dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+                dustGeo.setAttribute('size', new THREE.BufferAttribute(dustSizes, 1));
+                const dustMat = new THREE.PointsMaterial({ color: 0xffffff, size: 3.5, transparent: true, opacity: 0.4,
+                    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
+                const dustSystem = new THREE.Points(dustGeo, dustMat);
+                scene.add(dustSystem);
 
-                composer.render();
-                animationId = requestAnimationFrame(animate);
+                let time = 0,
+                    fadeStarted = false;
+                const clock = new THREE.Clock();
+                const ZOOM_START = 0.5,
+                    ZOOM_DUR = 1.2,
+                    START_Z = 400,
+                    END_Z = 50;
+                const FADE_START = ZOOM_START + ZOOM_DUR * 0.5;
+
+                function ease(t) { return t * t; }
+
+                let animationFrameId = null;
+
+                function animate() {
+                    const dt = Math.min(clock.getDelta(), 0.05);
+                    time += dt;
+                    if (time < ZOOM_START) camera.position.z = START_Z;
+                    else {
+                        const t = Math.min((time - ZOOM_START) / ZOOM_DUR, 1);
+                        const e = ease(t);
+                        camera.position.z = START_Z - e * (START_Z - END_Z);
+                        let intensity = 0;
+                        if (t < 1) intensity = t * 2.5;
+                        else intensity = Math.max(0, 2.5 - (time - (ZOOM_START + ZOOM_DUR)) * 6);
+                        blurPass.uniforms.uZoomIntensity.value = intensity;
+                    }
+                    camera.lookAt(0, 0, 0);
+                    if (time >= FADE_START && !fadeStarted) {
+                        fadeStarted = true;
+                        overlay.style.opacity = '0';
+                        overlay.style.pointerEvents = 'none';
+                    }
+
+                    const MAX_DIST = 650;
+                    for (let i = 0; i < CLOUD_COUNT; i++) {
+                        const i3 = i * 3;
+                        let x = pos[i3],
+                            y = pos[i3 + 1],
+                            z = pos[i3 + 2];
+                        const dist = Math.sqrt(x * x + y * y + z * z) + 0.01;
+                        const expF = 0.015 / (dist * 0.08 + 1);
+                        vel[i3] += (x / dist) * expF;
+                        vel[i3 + 1] += (y / dist) * expF;
+                        vel[i3 + 2] += (z / dist) * expF * 0.4;
+                        const vortex = 0.012 * (1 - Math.min(dist / 300, 1));
+                        vel[i3] += -y * vortex + Math.sin(z * 0.02 + time * 0.8) * 0.03;
+                        vel[i3 + 1] += x * vortex + Math.cos(z * 0.02 + time * 0.8) * 0.03;
+                        const n = noise3D(x * 0.006, y * 0.006, z * 0.006 + time * 0.2);
+                        vel[i3] += n * 0.8;
+                        vel[i3 + 1] += n * 0.8;
+                        vel[i3 + 2] += n * 0.3;
+                        vel[i3] += (Math.random() - 0.5) * 0.6;
+                        vel[i3 + 1] += (Math.random() - 0.5) * 0.6;
+                        vel[i3 + 2] += (Math.random() - 0.5) * 0.2;
+                        vel[i3] *= 0.98;
+                        vel[i3 + 1] *= 0.98;
+                        vel[i3 + 2] *= 0.98;
+                        const speed = Math.sqrt(vel[i3] ** 2 + vel[i3 + 1] ** 2 + vel[i3 + 2] ** 2);
+                        if (speed > 22) { const lim = 22 / speed;
+                            vel[i3] *= lim;
+                            vel[i3 + 1] *= lim;
+                            vel[i3 + 2] *= lim; }
+                        pos[i3] += vel[i3] * dt * 30;
+                        pos[i3 + 1] += vel[i3 + 1] * dt * 30;
+                        pos[i3 + 2] += vel[i3 + 2] * dt * 30;
+                        const sprite = cloudSprites[i];
+                        sprite.position.set(pos[i3], pos[i3 + 1], pos[i3 + 2]);
+                        const newDist = Math.sqrt(pos[i3] ** 2 + pos[i3 + 1] ** 2 + pos[i3 + 2] ** 2);
+                        const sf = 1 + newDist * 0.005;
+                        sprite.scale.set(sprite.userData.baseScale * sf, sprite.userData.baseScale * sf, 1);
+                        let op = 1;
+                        if (newDist > MAX_DIST * 0.5) {
+                            op = 1 - (newDist - MAX_DIST * 0.5) / (MAX_DIST * 0.5);
+                            op = Math.max(0, Math.min(1, op));
+                        }
+                        sprite.material.opacity = op;
+                    }
+
+                    const dPos = dustSystem.geometry.attributes.position.array;
+                    for (let i = 0; i < DUST_COUNT; i++) {
+                        const i3 = i * 3;
+                        dPos[i3] += dustVel[i3] * dt * 10 + Math.sin(time * 0.2 + i) * 0.05;
+                        dPos[i3 + 1] += dustVel[i3 + 1] * dt * 10 + Math.cos(time * 0.2 + i) * 0.05;
+                        dPos[i3 + 2] += dustVel[i3 + 2] * dt * 5;
+                        if (Math.abs(dPos[i3]) > 1500) dPos[i3] *= -0.9;
+                        if (Math.abs(dPos[i3 + 1]) > 1200) dPos[i3 + 1] *= -0.9;
+                    }
+                    dustSystem.geometry.attributes.position.needsUpdate = true;
+
+                    composer.render();
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+                animate();
+
+                setTimeout(() => {
+                    if (overlay.style.display !== 'none') {
+                        overlay.style.display = 'none';
+                        if (renderer) renderer.dispose();
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    }
+                }, 5500);
+            } catch (e) {
+                console.warn('Intro animation failed:', e);
+                const overlay = document.getElementById('intro-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.pointerEvents = 'none';
+                    setTimeout(() => overlay.style.display = 'none', 300);
+                }
             }
-            animationId = requestAnimationFrame(animate);
-
-            // Cleanup after crossfade
-            setTimeout(() => {
-                if (introOverlay.style.display !== 'none') {
-                    introOverlay.style.display = 'none';
-                    if (animationId) cancelAnimationFrame(animationId);
-                    renderer.dispose();
-                }
-            }, 5500);
         })();
-    </script>
 
-    <!-- Quick white curtain fade-out -->
-    <script>
-        (function() {
-            setTimeout(function() {
-                var curtain = document.getElementById('white-curtain');
-                if (curtain) {
-                    curtain.style.opacity = '0';
-                    setTimeout(function() {
-                        if (curtain) curtain.style.display = 'none';
-                    }, 500);
-                }
-            }, 50);
-        })();
+        setTimeout(() => {
+            const c = document.getElementById('white-curtain');
+            if (c) {
+                c.style.opacity = '0';
+                setTimeout(() => { if (c) c.style.display = 'none'; }, 500);
+            }
+        }, 50);
     </script>
 </body>
 </html>
