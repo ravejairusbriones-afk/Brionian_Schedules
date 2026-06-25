@@ -1361,6 +1361,74 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbXZndG5ra3FkY2lnd2t6dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTg2ODAsImV4cCI6MjA5NzAzNDY4MH0.DGTv9rrpALXzFvTpKXGWqkQhAaWheTm2gxULuJfNBbM';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // --- EDIT LOCK SYSTEM ---
+        function getDeviceId() {
+            let id = localStorage.getItem('my_device_id');
+            if (!id) {
+                id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('my_device_id', id);
+            }
+            return id;
+        }
+        const currentDeviceId = getDeviceId();
+        let lockInterval = null;
+
+        async function tryAcquireEditLock() {
+            const { data, error } = await supabaseClient.rpc('acquire_schedule_lock', {
+                p_device_id: currentDeviceId
+            });
+            if (error) {
+                console.error('Lock error:', error);
+                return false;
+            }
+            return data === true;
+        }
+
+        async function ensureLock() {
+            const hasLock = await tryAcquireEditLock();
+            if (!hasLock) {
+                alert('Someone else is currently editing the schedule. You are in read-only mode.');
+                document.getElementById('routineEditBtn').style.display = 'none';
+                document.querySelector('.create-btn-wrapper').style.opacity = '0.5';
+                document.querySelector('.create-btn-wrapper').style.pointerEvents = 'none';
+                return false;
+            }
+            document.getElementById('routineEditBtn').style.display = 'inline-block';
+            document.querySelector('.create-btn-wrapper').style.opacity = '1';
+            document.querySelector('.create-btn-wrapper').style.pointerEvents = 'auto';
+            return true;
+        }
+
+        function startLockRenewal() {
+            stopLockRenewal();
+            lockInterval = setInterval(async () => {
+                const renewed = await tryAcquireEditLock();
+                if (!renewed) {
+                    alert('Edit session expired. Please refresh to regain edit permissions.');
+                    stopLockRenewal();
+                    document.getElementById('routineEditBtn').style.display = 'none';
+                    document.querySelector('.create-btn-wrapper').style.opacity = '0.5';
+                    document.querySelector('.create-btn-wrapper').style.pointerEvents = 'none';
+                }
+            }, 15000);
+        }
+
+        function stopLockRenewal() {
+            if (lockInterval) {
+                clearInterval(lockInterval);
+                lockInterval = null;
+            }
+        }
+
+        async function releaseLock() {
+            stopLockRenewal();
+            await supabaseClient
+                .from('schedule_lock')
+                .update({ device_id: null, expires_at: new Date(0).toISOString() })
+                .eq('id', 1)
+                .eq('device_id', currentDeviceId);
+        }
+
         // --- Core Data & State (Empty Slate & Current Date) ---
         const colors = {
             'red': '#ef4444',
@@ -1558,9 +1626,14 @@
 
         // --- Routine Modal Functions ---
         async function openRoutineModal(isEditable = false) {
+            const lockAcquired = await ensureLock();
+            if (!lockAcquired) return;
+
+            startLockRenewal();
+
             document.getElementById('routineModal').classList.add('active');
             document.getElementById('routineModal').style.display = 'flex';
-
+            
             const template = await loadRoutineTemplate();
             if (Object.keys(template).length > 0 && Object.values(template).some(day => Object.values(day).some(v => v))) {
                 routineDataStore = template;
@@ -1578,6 +1651,7 @@
         }
 
         function closeRoutineModal() {
+            releaseLock();
             document.getElementById('routineModal').classList.remove('active');
             setTimeout(() => document.getElementById('routineModal').style.display = 'none', 300);
         }
@@ -1748,7 +1822,12 @@
         }
 
         // --- Event Modal Functions ---
-        function openModal(dateStr, timeStr) {
+        async function openModal(dateStr, timeStr) {
+            const lockAcquired = await ensureLock();
+            if (!lockAcquired) return;
+
+            startLockRenewal();
+
             const modal = document.getElementById('eventModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
@@ -1763,6 +1842,7 @@
         }
 
         function closeModal() {
+            releaseLock();
             const modal = document.getElementById('eventModal');
             modal.classList.remove('active');
             setTimeout(() => modal.style.display = 'none', 300);
