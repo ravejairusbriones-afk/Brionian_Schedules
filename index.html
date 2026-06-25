@@ -395,7 +395,7 @@
             padding: 16px 0;
             border-bottom: 1px solid var(--grid-line);
             flex-shrink: 0;
-            scrollbar-gutter: stable;
+            scrollbar-gutter: auto; /* CHANGED: auto instead of stable */
         }
         .grid-header-row .time-col {
             width: 90px;
@@ -420,7 +420,7 @@
             overflow-y: auto;
             position: relative;
             will-change: transform;
-            scrollbar-gutter: stable;
+            scrollbar-gutter: auto; /* CHANGED: auto instead of stable */
         }
         .time-col {
             width: 90px;
@@ -2319,9 +2319,13 @@
             });
             html += `</div><div class="grid-body">`;
 
+            // ── START MODIFICATION: Limit Week view to 5 rows (8AM - 12PM) ──
+            const startHour = 8;
+            const maxHour = isWeek ? 12 : 20; // 5 rows for Week (8,9,10,11,12), 13 rows for Day (8-20)
+
             if (state.view === 'Day') {
                 html += `<div class="time-col">`;
-                for (let h = 8; h <= 20; h++) {
+                for (let h = startHour; h <= maxHour; h++) {
                     const ap = h >= 12 ? 'PM' : 'AM';
                     const h12 = h > 12 ? h - 12 : h;
                     html += `<div class="time-slot">${h12}:00 ${ap}</div>`;
@@ -2336,7 +2340,8 @@
                 html +=
                     `<div class="day-column" data-date="${ds}" ondragover="allowDrop(event)" ondrop="drop(event,'${ds}')">`;
 
-                for (let h = 8; h <= 20; h++) {
+                // Render the correct number of rows
+                for (let h = startHour; h <= maxHour; h++) {
                     const ts = `${String(h).padStart(2,'0')}:00`;
                     html += `<div class="bg-line clickable" onclick="openModal('${ds}','${ts}')"></div>`;
                 }
@@ -2346,7 +2351,8 @@
                     const sm = parseInt(ev.start.split(':')[1], 10) || 0;
                     const eh = parseInt(ev.end, 10) || 0;
                     const em = parseInt(ev.end.split(':')[1], 10) || 0;
-                    const top = (sh - 8) * 76 + (sm / 60) * 76;
+                    // Calculate position relative to startHour
+                    const top = (sh - startHour) * 76 + (sm / 60) * 76;
                     const dur = (eh - sh) * 76 + ((em - sm) / 60) * 76;
                     const ch = COLORS[ev.color] || '#06b6d4';
                     const rgb = hexToRgb(ch);
@@ -2360,6 +2366,7 @@
                             <div class="event-title">${ev.title}</div>
                         </div>`;
                 });
+                // ── END MODIFICATION ──
 
                 html += `</div>`;
             });
