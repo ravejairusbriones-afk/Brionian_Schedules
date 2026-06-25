@@ -17,6 +17,7 @@
         }
     </script>
     <style>
+        /* ── same CSS as before – untouched ── */
         :root {
             --bg-base: #090c12;
             --bg-panel: rgba(16, 22, 34, 0.7);
@@ -394,6 +395,7 @@
             padding: 16px 0;
             border-bottom: 1px solid var(--grid-line);
             flex-shrink: 0;
+            scrollbar-gutter: stable;
         }
         .grid-header-row .time-col {
             width: 90px;
@@ -406,6 +408,7 @@
             font-weight: 500;
             color: var(--text-secondary);
             letter-spacing: 0.5px;
+            /* ── FIX: vertical grid lines in header ── */
             border-right: 1px solid var(--grid-line);
         }
         .grid-header-row .day-col:last-child {
@@ -417,6 +420,7 @@
             overflow-y: auto;
             position: relative;
             will-change: transform;
+            scrollbar-gutter: stable;
         }
         .time-col {
             width: 90px;
@@ -1116,6 +1120,7 @@
             background: rgba(255, 255, 255, 0.05);
             color: white;
         }
+        /* Routine Name Modal */
         #routineNameModal .modal-content {
             width: 350px;
             max-width: 90%;
@@ -1206,6 +1211,7 @@
             background: rgba(255, 255, 255, 0.05);
             color: white;
         }
+        /* End Routine Name Modal */
         .month-flex-container {
             display: flex;
             flex-direction: column;
@@ -1316,151 +1322,6 @@
             color: var(--text-secondary);
             margin-top: 2px;
         }
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 100000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-        .toast {
-            background: rgba(20, 26, 40, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px 20px;
-            color: var(--text-primary);
-            font-size: 13px;
-            font-weight: 500;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            pointer-events: auto;
-            animation: toastIn 0.3s ease forwards;
-            max-width: 360px;
-            line-height: 1.4;
-        }
-        .toast.error {
-            border-color: rgba(255, 77, 77, 0.3);
-        }
-        .toast.fade-out {
-            animation: toastOut 0.3s ease forwards;
-        }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(10px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(10px) scale(0.95); }
-        }
-        #customConfirmModal .modal-content {
-            width: 360px;
-            max-width: 90%;
-            text-align: center;
-        }
-        #customConfirmModal .confirm-message {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-        #customConfirmModal .confirm-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-        #customConfirmModal .confirm-actions button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.25s var(--transition-smooth);
-        }
-        #customConfirmModal .btn-confirm-cancel {
-            background: transparent;
-            border: 1px solid var(--grid-line);
-            color: var(--text-secondary);
-        }
-        #customConfirmModal .btn-confirm-cancel:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-        #customConfirmModal .btn-confirm-ok {
-            background: linear-gradient(135deg, #ff4d4d, #ff6b6b);
-            border: none;
-            color: white;
-        }
-        #customConfirmModal .btn-confirm-ok:hover {
-            box-shadow: 0 0 30px rgba(255, 77, 77, 0.3);
-            filter: brightness(1.1);
-        }
-        #customPromptModal .modal-content {
-            width: 360px;
-            max-width: 90%;
-        }
-        #customPromptModal .form-group {
-            margin-bottom: 12px;
-        }
-        #customPromptModal .form-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        #customPromptModal .form-group input {
-            width: 100%;
-            padding: 8px 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            color: white;
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth), background 0.25s;
-        }
-        #customPromptModal .form-group input:focus {
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
-            background: rgba(0, 212, 255, 0.03);
-        }
-        #customPromptModal .prompt-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        #customPromptModal .prompt-actions button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.25s var(--transition-smooth);
-        }
-        #customPromptModal .btn-prompt-cancel {
-            background: transparent;
-            border: 1px solid var(--grid-line);
-            color: var(--text-secondary);
-        }
-        #customPromptModal .btn-prompt-cancel:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-        #customPromptModal .btn-prompt-ok {
-            background: linear-gradient(135deg, var(--cyan), #0095ff);
-            border: none;
-            color: white;
-        }
-        #customPromptModal .btn-prompt-ok:hover {
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            filter: brightness(1.1);
-        }
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -1569,22 +1430,12 @@
             #routineModal .modal-content {
                 padding: 16px;
             }
-            .toast-container {
-                bottom: 12px;
-                right: 12px;
-                left: 12px;
-            }
-            .toast {
-                max-width: 100%;
-            }
         }
     </style>
 </head>
 <body>
     <!-- INTRO OVERLAY -->
     <div id="intro-overlay"><div id="white-curtain"></div></div>
-
-    <div class="toast-container" id="toastContainer"></div>
 
     <div class="app-container">
         <header class="top-nav">
@@ -1601,7 +1452,7 @@
                     <span>Create Routine</span>
                 </div>
                 <div class="calendars-section">
-                    <div class="section-header">Calendars <i class="fas fa-plus" onclick="showToast('Add new calendar feature coming soon.')"></i></div>
+                    <div class="section-header">Calendars <i class="fas fa-plus" onclick="alert('Add new calendar feature coming soon!')"></i></div>
                     <ul class="calendar-list" id="calendarList">
                         <li class="active" data-calendar="My Schedule" onclick="handleCalendarClick(this, 'My Schedule')" oncontextmenu="handleRightClickCalendar(event, 'My Schedule')"><i class="far fa-calendar"></i> My Schedule <span class="dot cyan"></span></li>
                         <li data-calendar="Quick Notes" onclick="handleCalendarClick(this, 'Quick Notes')" oncontextmenu="handleRightClickCalendar(event, 'Quick Notes')"><i class="far fa-lightbulb"></i> Quick Notes <span class="dot purple"></span></li>
@@ -1683,6 +1534,7 @@
         </div>
     </div>
 
+    <!-- Routine Name Modal -->
     <div class="modal-overlay" id="routineNameModal">
         <div class="modal-content">
             <div class="modal-header"><h2>Create Routine</h2><i class="fas fa-times" onclick="closeRoutineNameModal()"></i></div>
@@ -1690,28 +1542,6 @@
             <div class="error-msg" id="routineNameError" style="display:none;color:#ff4d4d;font-size:12px;margin-bottom:12px;">Name cannot be empty.</div>
             <button class="btn-primary" onclick="confirmRoutineName()">Create</button>
             <button class="btn-secondary" onclick="closeRoutineNameModal()" style="margin-top:8px;">Cancel</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="customConfirmModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Confirm</h2><i class="fas fa-times" onclick="customConfirmCancel()"></i></div>
-            <div class="confirm-message" id="customConfirmMessage"></div>
-            <div class="confirm-actions">
-                <button class="btn-confirm-cancel" onclick="customConfirmCancel()">Cancel</button>
-                <button class="btn-confirm-ok" onclick="customConfirmOk()">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="customPromptModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2 id="customPromptTitle">Input</h2><i class="fas fa-times" onclick="customPromptCancel()"></i></div>
-            <div class="form-group"><label id="customPromptLabel">Value</label><input type="text" id="customPromptInput" onkeydown="if(event.key==='Enter')customPromptOk()" /></div>
-            <div class="prompt-actions">
-                <button class="btn-prompt-cancel" onclick="customPromptCancel()">Cancel</button>
-                <button class="btn-prompt-ok" onclick="customPromptOk()">OK</button>
-            </div>
         </div>
     </div>
 
@@ -1816,73 +1646,6 @@
             });
         }
 
-        // ─── Toast ────────────────────────────────────────────────────────────
-        function showToast(message, type, duration) {
-            type = type || 'info';
-            duration = duration || 3000;
-            const container = $('toastContainer');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast' + (type === 'error' ? ' error' : '');
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('fade-out');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        // ─── Custom Confirm ──────────────────────────────────────────────────
-        let _confirmCallback = null;
-        function customConfirm(message, callback) {
-            _confirmCallback = callback;
-            const modal = $('customConfirmModal');
-            const msg = $('customConfirmMessage');
-            if (msg) msg.textContent = message;
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-        }
-        function customConfirmOk() {
-            const modal = $('customConfirmModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            if (_confirmCallback) { _confirmCallback(true); _confirmCallback = null; }
-        }
-        function customConfirmCancel() {
-            const modal = $('customConfirmModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            if (_confirmCallback) { _confirmCallback(false); _confirmCallback = null; }
-        }
-
-        // ─── Custom Prompt ───────────────────────────────────────────────────
-        let _promptCallback = null;
-        function customPrompt(title, label, defaultValue, callback) {
-            _promptCallback = callback;
-            const modal = $('customPromptModal');
-            const t = $('customPromptTitle');
-            const l = $('customPromptLabel');
-            const inp = $('customPromptInput');
-            if (t) t.textContent = title || 'Input';
-            if (l) l.textContent = label || 'Value';
-            if (inp) { inp.value = defaultValue || ''; }
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.classList.add('active'); if (inp) { inp.focus(); inp.select(); } }, 10);
-        }
-        function customPromptOk() {
-            const modal = $('customPromptModal');
-            const inp = $('customPromptInput');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            if (_promptCallback) { _promptCallback(inp ? inp.value : null); _promptCallback = null; }
-        }
-        function customPromptCancel() {
-            const modal = $('customPromptModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            if (_promptCallback) { _promptCallback(null); _promptCallback = null; }
-        }
-
         // ─── Login ────────────────────────────────────────────────────────────
         function checkLogin() {
             if (isLoggedIn) return true;
@@ -1911,8 +1674,7 @@
             return false;
         }
 
-        function closeLoginModal(clearAction) {
-            clearAction = clearAction !== false;
+        function closeLoginModal(clearAction = true) {
             const m = $('loginModal');
             m.classList.remove('active');
             setTimeout(() => { m.style.display = 'none'; }, 300);
@@ -2071,13 +1833,13 @@
                 const { data, error } = await SUPABASE_CLIENT.from('routines')
                     .insert([{ name: name, calendar: state.selectedCalendar }])
                     .select();
-                if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+                if (error) return alert('Failed: ' + error.message);
                 if (data && data.length) {
                     openRoutineModalInternal(data[0].id, data[0].name);
                 }
             } catch (e) {
                 console.error(e);
-                showToast('Something went wrong.', 'error');
+                alert('Something went wrong.');
             }
         }
 
@@ -2086,33 +1848,32 @@
         }
 
         function renameRoutineInternal(id, cur) {
-            customPrompt('Rename Routine', 'New name', cur, (newName) => {
-                if (newName === null) return;
-                const trimmed = newName.trim();
-                if (!trimmed) { showToast('Name cannot be empty.', 'error'); return; }
-                SUPABASE_CLIENT.from('routines')
-                    .update({ name: trimmed })
-                    .eq('id', id)
-                    .then(({ error }) => {
-                        if (error) showToast('Failed: ' + error.message, 'error');
-                        else if (activeView === 'dashboard') renderDashboard();
-                    })
-                    .catch(e => { console.error(e); showToast('Something went wrong.', 'error'); });
-            });
+            const newName = prompt('Enter new name:', cur);
+            if (newName === null) return;
+            const trimmed = newName.trim();
+            if (!trimmed) return alert('Name cannot be empty.');
+            SUPABASE_CLIENT.from('routines')
+                .update({ name: trimmed })
+                .eq('id', id)
+                .then(({ error }) => {
+                    if (error) alert('Failed: ' + error.message);
+                    else if (activeView === 'dashboard') renderDashboard();
+                })
+                .catch(e => { console.error(e);
+                    alert('Something went wrong.'); });
         }
 
         function deleteRoutineInternal(id) {
-            customConfirm('Delete this routine and all its data?', (confirmed) => {
-                if (!confirmed) return;
-                SUPABASE_CLIENT.from('routines')
-                    .delete()
-                    .eq('id', id)
-                    .then(({ error }) => {
-                        if (error) showToast('Failed: ' + error.message, 'error');
-                        else if (activeView === 'dashboard') renderDashboard();
-                    })
-                    .catch(e => { console.error(e); showToast('Something went wrong.', 'error'); });
-            });
+            if (!confirm('Delete this routine and all its data?')) return;
+            SUPABASE_CLIENT.from('routines')
+                .delete()
+                .eq('id', id)
+                .then(({ error }) => {
+                    if (error) alert('Failed: ' + error.message);
+                    else if (activeView === 'dashboard') renderDashboard();
+                })
+                .catch(e => { console.error(e);
+                    alert('Something went wrong.'); });
         }
 
         async function openRoutineModalInternal(id, name) {
@@ -2273,7 +2034,7 @@
         }
 
         async function saveRoutineToCalendar() {
-            if (!currentRoutineId) { showToast('No routine selected.', 'error'); return; }
+            if (!currentRoutineId) return alert('No routine selected.');
             const entries = [];
             ROUTINE_TIMES.forEach(t => {
                 ROUTINE_COLS.forEach(d => {
@@ -2290,11 +2051,11 @@
                 const { error: delErr } = await SUPABASE_CLIENT.from('routine_templates')
                     .delete()
                     .eq('routine_id', currentRoutineId);
-                if (delErr) { showToast('Failed to clear old data: ' + delErr.message, 'error'); return; }
+                if (delErr) return alert('Failed to clear old data: ' + delErr.message);
 
                 const { error: insErr } = await SUPABASE_CLIENT.from('routine_templates')
                     .insert(entries);
-                if (insErr) { showToast('Failed to save: ' + insErr.message, 'error'); return; }
+                if (insErr) return alert('Failed to save: ' + insErr.message);
 
                 const modal = $('routineModal');
                 if (modal) modal.dataset.editable = 'false';
@@ -2303,7 +2064,7 @@
                 if (activeView === 'dashboard') renderDashboard();
             } catch (e) {
                 console.error(e);
-                showToast('Something went wrong.', 'error');
+                alert('Something went wrong.');
             }
         }
 
@@ -2372,11 +2133,12 @@
             const end = $('inputEnd')?.value || '';
             const color = $('inputColor')?.value || 'cyan';
 
-            if (!title) { showToast('Please enter an event title.', 'error'); return; }
-            if (!date) { showToast('Please select a date.', 'error'); return; }
-            if (!start || !end) { showToast('Please select start and end times.', 'error'); return; }
-            if (start >= end) { showToast('Start time must be before end time.', 'error'); return; }
+            if (!title) return alert('Please enter an event title.');
+            if (!date) return alert('Please select a date.');
+            if (!start || !end) return alert('Please select start and end times.');
+            if (start >= end) return alert('Start time must be before end time.');
 
+            // Check for overlapping events
             const existing = state.events.filter(e => e.date === date && e.calendar === calendar);
             const overlap = existing.some(e => {
                 const s1 = start,
@@ -2385,14 +2147,14 @@
                     e2 = e.end;
                 return (s1 < e2 && e1 > s2);
             });
-            if (overlap) { showToast('An event already exists at this time.', 'error'); return; }
+            if (overlap) return alert('An event already exists at this time. Please choose a different time slot.');
 
             try {
                 const { data, error } = await SUPABASE_CLIENT.from('events')
                     .insert([{ title, calendar, event_date: date, start_time: start, end_time: end, color,
                         type: 'manual' }])
                     .select();
-                if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+                if (error) return alert('Failed: ' + error.message);
                 if (data && data.length) {
                     state.events.push({
                         id: data[0].id,
@@ -2410,26 +2172,24 @@
                 else renderDashboard();
             } catch (e) {
                 console.error(e);
-                showToast('Something went wrong.', 'error');
+                alert('Something went wrong.');
             }
         }
 
-        function deleteEvent(id) {
-            customConfirm('Delete this event?', async (confirmed) => {
-                if (!confirmed) return;
-                try {
-                    const { error } = await SUPABASE_CLIENT.from('events')
-                        .delete()
-                        .eq('id', id);
-                    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
-                    state.events = state.events.filter(e => e.id !== id);
-                    if (activeView === 'calendar') render();
-                    else renderDashboard();
-                } catch (e) {
-                    console.error(e);
-                    showToast('Something went wrong.', 'error');
-                }
-            });
+        async function deleteEvent(id) {
+            if (!confirm('Delete this event?')) return;
+            try {
+                const { error } = await SUPABASE_CLIENT.from('events')
+                    .delete()
+                    .eq('id', id);
+                if (error) return alert('Failed: ' + error.message);
+                state.events = state.events.filter(e => e.id !== id);
+                if (activeView === 'calendar') render();
+                else renderDashboard();
+            } catch (e) {
+                console.error(e);
+                alert('Something went wrong.');
+            }
         }
 
         // ─── Drag & Drop ─────────────────────────────────────────────────────
@@ -2455,6 +2215,7 @@
                 el.style.opacity = '1';
                 el.style.transition = '';
             }
+            // Don't reset draggedId here — drop might happen after
         }
 
         function allowDrop(e) {
@@ -2470,11 +2231,13 @@
             const idx = state.events.findIndex(ev => ev.id === id);
             if (idx === -1) { draggedId = null; return; }
 
+            // Verify the event belongs to the active calendar
             if (state.events[idx].calendar !== state.activeCalendar) {
                 draggedId = null;
                 return;
             }
 
+            // Avoid dropping on same date
             if (state.events[idx].date === newDate) { draggedId = null; return; }
 
             const oldDate = state.events[idx].date;
@@ -2485,14 +2248,15 @@
                     .update({ event_date: newDate })
                     .eq('id', id);
                 if (error) {
+                    // Rollback
                     state.events[idx].date = oldDate;
                     console.error('Drop update failed:', error);
-                    showToast('Failed to move event: ' + error.message, 'error');
+                    alert('Failed to move event: ' + error.message);
                 }
             } catch (e) {
                 state.events[idx].date = oldDate;
                 console.error('Drop error:', e);
-                showToast('Something went wrong while moving the event.', 'error');
+                alert('Something went wrong while moving the event.');
             }
 
             draggedId = null;
@@ -2516,6 +2280,7 @@
                     e.calendar === state.activeCalendar && e.type !== 'routine'
                 );
 
+                // Update header
                 if (state.view === 'Week' || state.view === 'Agenda') {
                     const start = getWeekStart(state.currentDate);
                     const end = new Date(start);
@@ -2589,7 +2354,7 @@
                         `background:linear-gradient(135deg,rgba(${rgb.r},${rgb.g},${rgb.b},0.15),rgba(${rgb.r},${rgb.g},${rgb.b},0.02));border-left:3px solid ${ch};box-shadow:0 4px 16px rgba(${rgb.r},${rgb.g},${rgb.b},0.1);top:${Math.max(0,top)}px;height:${Math.max(20,dur)}px;`;
 
                     html += `
-                        <div class="event-card" draggable="true" style="${style}" ondragstart="dragStart(event,${ev.id})" ondragend="dragEnd(event)" onclick="showToast('${ev.title.replace(/'/g,"\\'")}: ${ev.start} – ${ev.end}')">
+                        <div class="event-card" draggable="true" style="${style}" ondragstart="dragStart(event,${ev.id})" ondragend="dragEnd(event)" onclick="alert('${ev.title.replace(/'/g,"\\'")}\\n${ev.start}–${ev.end}')">
                             <div class="event-delete" onclick="event.stopPropagation();deleteEvent(${ev.id})"><i class="fas fa-times-circle"></i></div>
                             <div class="event-time">${ev.start} – ${ev.end}</div>
                             <div class="event-title">${ev.title}</div>
@@ -2601,6 +2366,7 @@
             html += `</div></div>`;
             container.innerHTML = html;
 
+            // Current time indicator (Day view only)
             if (state.view === 'Day') {
                 const now = new Date(),
                     todayStr = formatDate(now);
@@ -2648,7 +2414,7 @@
                     wkHtml += `<div class="day-number">${dn}</div>`;
                     tod.forEach(e => {
                         wkHtml +=
-                            `<div class="month-event" style="border-color:${COLORS[e.color]||'#06b6d4'};" onclick="event.stopPropagation();showToast('${e.title.replace(/'/g,"\\'")}')">${e.title}</div>`;
+                            `<div class="month-event" style="border-color:${COLORS[e.color]||'#06b6d4'};" onclick="event.stopPropagation();alert('${e.title.replace(/'/g,"\\'")}')">${e.title}</div>`;
                     });
                     wkHtml += `</div>`;
                 });
@@ -2685,14 +2451,14 @@
             let html = `<div class="agenda-list">`;
             if (!items.length) {
                 html +=
-                    `<div style="color:var(--text-secondary);text-align:center;padding:40px;font-size:14px;">No events this week.</div>`;
+                    `<div style="color:var(--text-secondary);text-align:center;padding:40px;font-size:14px;">✨ No events this week.</div>`;
             } else {
                 items.forEach(e => {
                     const ds = e.dayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short',
                         day: 'numeric' });
                     const ch = COLORS[e.color] || '#06b6d4';
                     html += `
-                        <div class="agenda-item" style="border-left-color:${ch};" onclick="showToast('${e.title.replace(/'/g,"\\'")}: ${e.start} – ${e.end}')">
+                        <div class="agenda-item" style="border-left-color:${ch};" onclick="alert('${e.title.replace(/'/g,"\\'")}')">
                             <div class="date">${ds}</div>
                             <div class="info">
                                 <div class="title">${e.title}</div>
@@ -2786,17 +2552,21 @@
         // ─── Init ─────────────────────────────────────────────────────────────
 
         (function init() {
+            // Set initial view
             switchView('calendar');
+            // Load events and then render
             loadEvents().then(() => {
                 if (activeView === 'calendar') render();
                 else renderDashboard();
                 subscribeRealtime();
             }).catch(e => {
                 console.error('Init load error:', e);
+                // Still try to render with empty data
                 if (activeView === 'calendar') render();
                 else renderDashboard();
             });
 
+            // ─── Sidebar hover ──────────────────────────────────────────────────
             qsa('.calendar-list li').forEach(item => {
                 item.addEventListener('mouseenter', function() {
                     qsa('.calendar-list li').forEach(li => li.classList.remove('active', 'selected-creation',
@@ -2809,6 +2579,7 @@
                 item.addEventListener('mouseleave', () => updateSidebar());
             });
 
+            // ─── Top nav hover ──────────────────────────────────────────────────
             qsa('.nav-center a').forEach(link => {
                 link.addEventListener('mouseenter', function() {
                     qsa('.nav-center a').forEach(l => l.classList.remove('active'));
@@ -2823,7 +2594,8 @@
                 });
             });
 
-            ['eventModal', 'routineModal', 'loginModal', 'routineNameModal', 'customConfirmModal', 'customPromptModal'].forEach(id => {
+            // ─── Modal overlay close ─────────────────────────────────────────────
+            ['eventModal', 'routineModal', 'loginModal', 'routineNameModal'].forEach(id => {
                 const el = $(id);
                 if (el) {
                     el.addEventListener('click', function(e) {
@@ -2832,13 +2604,12 @@
                             else if (id === 'routineModal') closeRoutineModal();
                             else if (id === 'loginModal') closeLoginModal();
                             else if (id === 'routineNameModal') closeRoutineNameModal();
-                            else if (id === 'customConfirmModal') customConfirmCancel();
-                            else if (id === 'customPromptModal') customPromptCancel();
                         }
                     });
                 }
             });
 
+            // ─── Keyboard shortcuts ─────────────────────────────────────────────
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName ===
                     'SELECT') return;
