@@ -1354,14 +1354,14 @@
         </div>
     </div>
 
-    <!-- Original application script (complete) -->
+    <!-- Complete script (with master device ID logic) -->
     <script>
         // --- Supabase Initialisation ---
         const SUPABASE_URL = 'https://ismvgtnkkqdcigwkzvdl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbXZndG5ra3FkY2lnd2t6dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTg2ODAsImV4cCI6MjA5NzAzNDY4MH0.DGTv9rrpALXzFvTpKXGWqkQhAaWheTm2gxULuJfNBbM';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- EDIT LOCK SYSTEM ---
+        // --- MASTER DEVICE ID SYSTEM ---
         function getDeviceId() {
             let id = localStorage.getItem('my_device_id');
             if (!id) {
@@ -1371,62 +1371,115 @@
             return id;
         }
         const currentDeviceId = getDeviceId();
-        let lockInterval = null;
 
-        async function tryAcquireEditLock() {
-            const { data, error } = await supabaseClient.rpc('acquire_schedule_lock', {
+        // Check master status on page load
+        let isMaster = false;
+        let masterDeviceId = null;
+
+        async function checkMasterStatus() {
+            // Fetch current master from app_settings
+            const { data, error } = await supabaseClient
+                .from('app_settings')
+                .select('master_device_id')
+                .eq('id', 1)
+                .single();
+
+            if (error) {
+                console.error('Failed to fetch master status:', error);
+                return false;
+            }
+
+            masterDeviceId = data?.master_device_id;
+            if (masterDeviceId === null) {
+                // No master yet – claim it
+                const { data: claimed, error: claimError } = await supabaseClient.rpc('claim_master', {
+                    p_device_id: currentDeviceId
+                });
+                if (claimError) {
+                    console.error('Failed to claim master:', claimError);
+                    return false;
+                }
+                if (claimed === true) {
+                    isMaster = true;
+                    masterDeviceId = currentDeviceId;
+                    alert('You are now the master editor. Only this device can make changes.');
+                } else {
+                    // Race condition – someone else claimed it just now
+                    // Re-fetch
+                    const { data: retry } = await supabaseClient
+                        .from('app_settings')
+                        .select('master_device_id')
+                        .eq('id', 1)
+                        .single();
+                    masterDeviceId = retry?.master_device_id;
+                    isMaster = (masterDeviceId === currentDeviceId);
+                }
+            } else {
+                isMaster = (masterDeviceId === currentDeviceId);
+                if (!isMaster) {
+                    alert('This device is not the master. Only the master device can edit.');
+                } else {
+                    // Master device – show reset button
+                    // (will be added in UI below)
+                }
+            }
+
+            // Apply UI state
+            applyMasterUI();
+            return isMaster;
+        }
+
+        function applyMasterUI() {
+            const createWrapper = document.querySelector('.create-btn-wrapper');
+            const routineEditBtn = document.getElementById('routineEditBtn');
+            const saveBtn = document.getElementById('routineSaveBtn');
+
+            if (isMaster) {
+                createWrapper.style.opacity = '1';
+                createWrapper.style.pointerEvents = 'auto';
+                routineEditBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none'; // will be shown when editing
+                // Show reset master button (only for master)
+                let resetBtn = document.getElementById('resetMasterBtn');
+                if (!resetBtn) {
+                    resetBtn = document.createElement('button');
+                    resetBtn.id = 'resetMasterBtn';
+                    resetBtn.innerText = 'Reset Master';
+                    resetBtn.style.cssText = 'margin-top: 16px; background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;';
+                    resetBtn.onclick = resetMaster;
+                    document.querySelector('.sidebar-left').appendChild(resetBtn);
+                }
+                resetBtn.style.display = 'block';
+            } else {
+                createWrapper.style.opacity = '0.4';
+                createWrapper.style.pointerEvents = 'none';
+                routineEditBtn.style.display = 'none';
+                saveBtn.style.display = 'none';
+                // Remove reset button if it exists
+                const resetBtn = document.getElementById('resetMasterBtn');
+                if (resetBtn) resetBtn.style.display = 'none';
+            }
+        }
+
+        async function resetMaster() {
+            if (!isMaster) return;
+            if (!confirm('This will allow any device to become the new master. Are you sure?')) return;
+
+            const { data, error } = await supabaseClient.rpc('reset_master', {
                 p_device_id: currentDeviceId
             });
             if (error) {
-                console.error('Lock error:', error);
-                return false;
+                alert('Failed to reset master: ' + error.message);
+                return;
             }
-            return data === true;
-        }
-
-        async function ensureLock() {
-            const hasLock = await tryAcquireEditLock();
-            if (!hasLock) {
-                alert('Someone else is currently editing the schedule. You are in read-only mode.');
-                document.getElementById('routineEditBtn').style.display = 'none';
-                document.querySelector('.create-btn-wrapper').style.opacity = '0.5';
-                document.querySelector('.create-btn-wrapper').style.pointerEvents = 'none';
-                return false;
+            if (data === true) {
+                isMaster = false;
+                masterDeviceId = null;
+                applyMasterUI();
+                alert('Master has been reset. The next device that opens the page will become the new master.');
+            } else {
+                alert('You are not the current master.');
             }
-            document.getElementById('routineEditBtn').style.display = 'inline-block';
-            document.querySelector('.create-btn-wrapper').style.opacity = '1';
-            document.querySelector('.create-btn-wrapper').style.pointerEvents = 'auto';
-            return true;
-        }
-
-        function startLockRenewal() {
-            stopLockRenewal();
-            lockInterval = setInterval(async () => {
-                const renewed = await tryAcquireEditLock();
-                if (!renewed) {
-                    alert('Edit session expired. Please refresh to regain edit permissions.');
-                    stopLockRenewal();
-                    document.getElementById('routineEditBtn').style.display = 'none';
-                    document.querySelector('.create-btn-wrapper').style.opacity = '0.5';
-                    document.querySelector('.create-btn-wrapper').style.pointerEvents = 'none';
-                }
-            }, 15000);
-        }
-
-        function stopLockRenewal() {
-            if (lockInterval) {
-                clearInterval(lockInterval);
-                lockInterval = null;
-            }
-        }
-
-        async function releaseLock() {
-            stopLockRenewal();
-            await supabaseClient
-                .from('schedule_lock')
-                .update({ device_id: null, expires_at: new Date(0).toISOString() })
-                .eq('id', 1)
-                .eq('device_id', currentDeviceId);
         }
 
         // --- Core Data & State (Empty Slate & Current Date) ---
@@ -1464,9 +1517,8 @@
             '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
         ];
         let routineData = {};
-        let routineDataStore = {}; // Stores the latest saved routine for editing
+        let routineDataStore = {};
 
-        let nextId = 1;
         let activeView = 'calendar';
 
         // --- Helper Functions ---
@@ -1523,7 +1575,6 @@
                 }));
             } catch (err) {
                 console.error('Failed to load events:', err);
-                // Keep default empty events
             }
         }
 
@@ -1626,14 +1677,14 @@
 
         // --- Routine Modal Functions ---
         async function openRoutineModal(isEditable = false) {
-            const lockAcquired = await ensureLock();
-            if (!lockAcquired) return;
-
-            startLockRenewal();
+            if (!isMaster) {
+                alert('Only the master device can create or edit routines.');
+                return;
+            }
 
             document.getElementById('routineModal').classList.add('active');
             document.getElementById('routineModal').style.display = 'flex';
-            
+
             const template = await loadRoutineTemplate();
             if (Object.keys(template).length > 0 && Object.values(template).some(day => Object.values(day).some(v => v))) {
                 routineDataStore = template;
@@ -1651,7 +1702,6 @@
         }
 
         function closeRoutineModal() {
-            releaseLock();
             document.getElementById('routineModal').classList.remove('active');
             setTimeout(() => document.getElementById('routineModal').style.display = 'none', 300);
         }
@@ -1728,7 +1778,6 @@
         async function saveRoutineToCalendar() {
             routineDataStore = JSON.parse(JSON.stringify(routineData));
 
-            // Save template to Supabase
             const entries = [];
             routineTimes.forEach(time => {
                 routineColumns.forEach(day => {
@@ -1751,7 +1800,6 @@
                     return;
                 }
 
-                // Generate events for the current week
                 let newEvents = [];
                 let hasSubjects = false;
                 routineTimes.forEach(time => {
@@ -1799,7 +1847,6 @@
                     return;
                 }
 
-                // Delete old routine events and insert new ones
                 await supabaseClient.from('events').delete().eq('type', 'routine');
                 const { error: eventsError } = await supabaseClient.from('events').insert(newEvents);
                 if (eventsError) {
@@ -1823,10 +1870,10 @@
 
         // --- Event Modal Functions ---
         async function openModal(dateStr, timeStr) {
-            const lockAcquired = await ensureLock();
-            if (!lockAcquired) return;
-
-            startLockRenewal();
+            if (!isMaster) {
+                alert('Only the master device can create events.');
+                return;
+            }
 
             const modal = document.getElementById('eventModal');
             modal.style.display = 'flex';
@@ -1842,7 +1889,6 @@
         }
 
         function closeModal() {
-            releaseLock();
             const modal = document.getElementById('eventModal');
             modal.classList.remove('active');
             setTimeout(() => modal.style.display = 'none', 300);
@@ -1900,6 +1946,10 @@
         }
 
         async function deleteEvent(id) {
+            if (!isMaster) {
+                alert('Only the master device can delete events.');
+                return;
+            }
             if (confirm('Are you sure you want to delete this event?')) {
                 try {
                     const { error } = await supabaseClient
@@ -1926,6 +1976,11 @@
         let draggedEventId = null;
 
         function dragStart(e, id) {
+            if (!isMaster) {
+                e.preventDefault();
+                alert('Only the master device can drag events.');
+                return;
+            }
             draggedEventId = id;
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', id);
@@ -1938,6 +1993,11 @@
             e.dataTransfer.dropEffect = 'move'; }
 
         async function drop(e, newDate) {
+            if (!isMaster) {
+                e.preventDefault();
+                alert('Only the master device can move events.');
+                return;
+            }
             e.preventDefault();
             if (draggedEventId !== null) {
                 const eventIndex = state.events.findIndex(ev => ev.id === draggedEventId);
@@ -2067,7 +2127,6 @@
             }
         }
 
-        // --- MONTH VIEW — FULLY RECREATED with flex, no CSS grid, now scrollable ---
         function renderMonthView(container, filteredEvents) {
             const year = state.currentDate.getFullYear();
             const month = state.currentDate.getMonth();
@@ -2084,11 +2143,9 @@
             let day = 1;
             let weekCells = [];
 
-            // Build weeks as arrays of day numbers (null for empty)
             const weeks = [];
             let currentWeek = [];
 
-            // Fill leading empty cells
             for (let i = 0; i < firstDay; i++) {
                 currentWeek.push(null);
             }
@@ -2102,7 +2159,6 @@
                 day++;
             }
 
-            // Fill trailing empty cells
             while (currentWeek.length < 7) {
                 currentWeek.push(null);
             }
@@ -2110,7 +2166,6 @@
                 weeks.push(currentWeek);
             }
 
-            // Render each week as a flex row
             weeks.forEach(week => {
                 html += `<div class="month-flex-row">`;
                 week.forEach(dayNum => {
@@ -2203,7 +2258,6 @@
             let html =
                 `<div class="dashboard-header"><h1>Timeline</h1><p>Overview of your scheduled weeks.</p></div>`;
 
-            // Routine Fat Bar
             if (routines.length > 0) {
                 const routine = routines[0];
                 const weekStart = getWeekStart(new Date(routine.date));
@@ -2275,21 +2329,24 @@
             switchView('calendar');
         }
 
-        // --- Initial Load (Non‑blocking, shows empty UI first) ---
-        switchView('calendar'); // Render immediately with empty events
-        loadEvents().then(() => {
-            // Once events are loaded, refresh the view so they appear
+        // --- Initial Load ---
+        // First check master status, then load events and render
+        (async function init() {
+            await checkMasterStatus();
+            switchView('calendar');
+            await loadEvents();
             if (activeView === 'calendar') render();
             else renderDashboard();
-        });
+        })();
 
+        // Modal close on outside click
         document.getElementById('eventModal').addEventListener('click', function(e) { if (e.target === this)
             closeModal(); });
         document.getElementById('routineModal').addEventListener('click', function(e) { if (e.target === this)
                 closeRoutineModal(); });
     </script>
 
-    <!-- INTRO ANIMATION (unchanged from original, minus the #dashboard-view line) -->
+    <!-- INTRO ANIMATION (unchanged) -->
     <script type="module">
         (async () => {
             let THREE;
@@ -2647,7 +2704,6 @@
                     fadeStarted = true;
                     introOverlay.style.opacity = '0';
                     introOverlay.style.pointerEvents = 'none';
-                    // No dashboard reveal needed here; the app is already visible behind
                 }
 
                 // Cloud physics (unchanged)
