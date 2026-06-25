@@ -1207,6 +1207,134 @@
             color: var(--text-secondary);
             margin-top: 2px;
         }
+
+        /* --- Login Modal --- */
+        #loginModal.modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(16px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        #loginModal.modal-overlay.active {
+            opacity: 1;
+            display: flex;
+        }
+        #loginModal .modal-content {
+            background: rgba(20, 26, 40, 0.95);
+            padding: 24px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 350px;
+            max-width: 90%;
+            color: var(--text-primary);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(30px);
+            transform: scale(0.9);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #loginModal.modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        #loginModal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        #loginModal .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        #loginModal .modal-header i {
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            font-size: 16px;
+        }
+        #loginModal .modal-header i:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        #loginModal .form-group {
+            margin-bottom: 12px;
+        }
+        #loginModal .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        #loginModal .form-group input {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: 0.2s;
+        }
+        #loginModal .form-group input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+            background: rgba(0, 212, 255, 0.03);
+        }
+        #loginModal .error-msg {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+        }
+        #loginModal .btn-primary {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--cyan), #0095ff);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        #loginModal .btn-primary:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            transform: scale(1.01);
+            filter: brightness(1.1);
+        }
+        #loginModal .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--grid-line);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        #loginModal .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -1271,6 +1399,27 @@
                     <!-- Rendered dynamically by JS -->
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Login</h2>
+                <i class="fas fa-times" onclick="closeLoginModal()"></i>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password">
+            </div>
+            <div class="error-msg" id="loginError">Invalid credentials. Please try again.</div>
+            <button class="btn-primary" onclick="handleLogin()">Login</button>
+            <button class="btn-secondary" onclick="closeLoginModal()">Cancel</button>
         </div>
     </div>
 
@@ -1354,133 +1503,66 @@
         </div>
     </div>
 
-    <!-- Complete script (with master device ID logic) -->
+    <!-- Original application script (complete) -->
     <script>
         // --- Supabase Initialisation ---
         const SUPABASE_URL = 'https://ismvgtnkkqdcigwkzvdl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbXZndG5ra3FkY2lnd2t6dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NTg2ODAsImV4cCI6MjA5NzAzNDY4MH0.DGTv9rrpALXzFvTpKXGWqkQhAaWheTm2gxULuJfNBbM';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- MASTER DEVICE ID SYSTEM ---
-        function getDeviceId() {
-            let id = localStorage.getItem('my_device_id');
-            if (!id) {
-                id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('my_device_id', id);
+        // --- LOGIN SYSTEM ---
+        let isLoggedIn = false;
+        const ADMIN_USER = 'Reeva Briones';
+        const ADMIN_PASS = '7&%$#RF%$^';
+
+        function checkLogin() {
+            // If already logged in this session, return true
+            if (isLoggedIn) return true;
+            // Check sessionStorage for persistent flag
+            if (sessionStorage.getItem('brionesian_logged_in') === 'true') {
+                isLoggedIn = true;
+                return true;
             }
-            return id;
+            return false;
         }
-        const currentDeviceId = getDeviceId();
 
-        // Check master status on page load
-        let isMaster = false;
-        let masterDeviceId = null;
-
-        async function checkMasterStatus() {
-            // Fetch current master from app_settings
-            const { data, error } = await supabaseClient
-                .from('app_settings')
-                .select('master_device_id')
-                .eq('id', 1)
-                .single();
-
-            if (error) {
-                console.error('Failed to fetch master status:', error);
+        function requireLogin() {
+            if (!checkLogin()) {
+                // Show login modal
+                document.getElementById('loginModal').classList.add('active');
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
                 return false;
             }
-
-            masterDeviceId = data?.master_device_id;
-            if (masterDeviceId === null) {
-                // No master yet – claim it
-                const { data: claimed, error: claimError } = await supabaseClient.rpc('claim_master', {
-                    p_device_id: currentDeviceId
-                });
-                if (claimError) {
-                    console.error('Failed to claim master:', claimError);
-                    return false;
-                }
-                if (claimed === true) {
-                    isMaster = true;
-                    masterDeviceId = currentDeviceId;
-                    alert('You are now the master editor. Only this device can make changes.');
-                } else {
-                    // Race condition – someone else claimed it just now
-                    // Re-fetch
-                    const { data: retry } = await supabaseClient
-                        .from('app_settings')
-                        .select('master_device_id')
-                        .eq('id', 1)
-                        .single();
-                    masterDeviceId = retry?.master_device_id;
-                    isMaster = (masterDeviceId === currentDeviceId);
-                }
-            } else {
-                isMaster = (masterDeviceId === currentDeviceId);
-                if (!isMaster) {
-                    alert('This device is not the master. Only the master device can edit.');
-                } else {
-                    // Master device – show reset button
-                    // (will be added in UI below)
-                }
-            }
-
-            // Apply UI state
-            applyMasterUI();
-            return isMaster;
+            return true;
         }
 
-        function applyMasterUI() {
-            const createWrapper = document.querySelector('.create-btn-wrapper');
-            const routineEditBtn = document.getElementById('routineEditBtn');
-            const saveBtn = document.getElementById('routineSaveBtn');
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            setTimeout(() => document.getElementById('loginModal').style.display = 'none', 300);
+        }
 
-            if (isMaster) {
-                createWrapper.style.opacity = '1';
-                createWrapper.style.pointerEvents = 'auto';
-                routineEditBtn.style.display = 'inline-block';
-                saveBtn.style.display = 'none'; // will be shown when editing
-                // Show reset master button (only for master)
-                let resetBtn = document.getElementById('resetMasterBtn');
-                if (!resetBtn) {
-                    resetBtn = document.createElement('button');
-                    resetBtn.id = 'resetMasterBtn';
-                    resetBtn.innerText = 'Reset Master';
-                    resetBtn.style.cssText = 'margin-top: 16px; background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;';
-                    resetBtn.onclick = resetMaster;
-                    document.querySelector('.sidebar-left').appendChild(resetBtn);
+        function handleLogin() {
+            const user = document.getElementById('loginUsername').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                isLoggedIn = true;
+                sessionStorage.setItem('brionesian_logged_in', 'true');
+                closeLoginModal();
+                // After login, re-trigger the action that opened the modal
+                if (pendingAction) {
+                    const action = pendingAction;
+                    pendingAction = null;
+                    action();
                 }
-                resetBtn.style.display = 'block';
             } else {
-                createWrapper.style.opacity = '0.4';
-                createWrapper.style.pointerEvents = 'none';
-                routineEditBtn.style.display = 'none';
-                saveBtn.style.display = 'none';
-                // Remove reset button if it exists
-                const resetBtn = document.getElementById('resetMasterBtn');
-                if (resetBtn) resetBtn.style.display = 'none';
+                document.getElementById('loginError').style.display = 'block';
             }
         }
 
-        async function resetMaster() {
-            if (!isMaster) return;
-            if (!confirm('This will allow any device to become the new master. Are you sure?')) return;
-
-            const { data, error } = await supabaseClient.rpc('reset_master', {
-                p_device_id: currentDeviceId
-            });
-            if (error) {
-                alert('Failed to reset master: ' + error.message);
-                return;
-            }
-            if (data === true) {
-                isMaster = false;
-                masterDeviceId = null;
-                applyMasterUI();
-                alert('Master has been reset. The next device that opens the page will become the new master.');
-            } else {
-                alert('You are not the current master.');
-            }
-        }
+        let pendingAction = null;
 
         // --- Core Data & State (Empty Slate & Current Date) ---
         const colors = {
@@ -1517,8 +1599,9 @@
             '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'
         ];
         let routineData = {};
-        let routineDataStore = {};
+        let routineDataStore = {}; // Stores the latest saved routine for editing
 
+        let nextId = 1;
         let activeView = 'calendar';
 
         // --- Helper Functions ---
@@ -1575,6 +1658,7 @@
                 }));
             } catch (err) {
                 console.error('Failed to load events:', err);
+                // Keep default empty events
             }
         }
 
@@ -1675,16 +1759,22 @@
             else renderDashboard();
         }
 
-        // --- Routine Modal Functions ---
+        // --- Routine Modal Functions (with login check) ---
         async function openRoutineModal(isEditable = false) {
-            if (!isMaster) {
-                alert('Only the master device can create or edit routines.');
+            // If not logged in, show login and set pending action
+            if (!checkLogin()) {
+                pendingAction = () => openRoutineModal(isEditable);
+                document.getElementById('loginModal').classList.add('active');
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
                 return;
             }
 
             document.getElementById('routineModal').classList.add('active');
             document.getElementById('routineModal').style.display = 'flex';
-
+            
             const template = await loadRoutineTemplate();
             if (Object.keys(template).length > 0 && Object.values(template).some(day => Object.values(day).some(v => v))) {
                 routineDataStore = template;
@@ -1778,6 +1868,7 @@
         async function saveRoutineToCalendar() {
             routineDataStore = JSON.parse(JSON.stringify(routineData));
 
+            // Save template to Supabase
             const entries = [];
             routineTimes.forEach(time => {
                 routineColumns.forEach(day => {
@@ -1800,6 +1891,7 @@
                     return;
                 }
 
+                // Generate events for the current week
                 let newEvents = [];
                 let hasSubjects = false;
                 routineTimes.forEach(time => {
@@ -1847,6 +1939,7 @@
                     return;
                 }
 
+                // Delete old routine events and insert new ones
                 await supabaseClient.from('events').delete().eq('type', 'routine');
                 const { error: eventsError } = await supabaseClient.from('events').insert(newEvents);
                 if (eventsError) {
@@ -1868,10 +1961,15 @@
             }
         }
 
-        // --- Event Modal Functions ---
+        // --- Event Modal Functions (with login check) ---
         async function openModal(dateStr, timeStr) {
-            if (!isMaster) {
-                alert('Only the master device can create events.');
+            if (!checkLogin()) {
+                pendingAction = () => openModal(dateStr, timeStr);
+                document.getElementById('loginModal').classList.add('active');
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
                 return;
             }
 
@@ -1946,10 +2044,6 @@
         }
 
         async function deleteEvent(id) {
-            if (!isMaster) {
-                alert('Only the master device can delete events.');
-                return;
-            }
             if (confirm('Are you sure you want to delete this event?')) {
                 try {
                     const { error } = await supabaseClient
@@ -1976,11 +2070,6 @@
         let draggedEventId = null;
 
         function dragStart(e, id) {
-            if (!isMaster) {
-                e.preventDefault();
-                alert('Only the master device can drag events.');
-                return;
-            }
             draggedEventId = id;
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', id);
@@ -1993,11 +2082,6 @@
             e.dataTransfer.dropEffect = 'move'; }
 
         async function drop(e, newDate) {
-            if (!isMaster) {
-                e.preventDefault();
-                alert('Only the master device can move events.');
-                return;
-            }
             e.preventDefault();
             if (draggedEventId !== null) {
                 const eventIndex = state.events.findIndex(ev => ev.id === draggedEventId);
@@ -2127,6 +2211,7 @@
             }
         }
 
+        // --- MONTH VIEW — FULLY RECREATED with flex, no CSS grid, now scrollable ---
         function renderMonthView(container, filteredEvents) {
             const year = state.currentDate.getFullYear();
             const month = state.currentDate.getMonth();
@@ -2143,9 +2228,11 @@
             let day = 1;
             let weekCells = [];
 
+            // Build weeks as arrays of day numbers (null for empty)
             const weeks = [];
             let currentWeek = [];
 
+            // Fill leading empty cells
             for (let i = 0; i < firstDay; i++) {
                 currentWeek.push(null);
             }
@@ -2159,6 +2246,7 @@
                 day++;
             }
 
+            // Fill trailing empty cells
             while (currentWeek.length < 7) {
                 currentWeek.push(null);
             }
@@ -2166,6 +2254,7 @@
                 weeks.push(currentWeek);
             }
 
+            // Render each week as a flex row
             weeks.forEach(week => {
                 html += `<div class="month-flex-row">`;
                 week.forEach(dayNum => {
@@ -2258,6 +2347,7 @@
             let html =
                 `<div class="dashboard-header"><h1>Timeline</h1><p>Overview of your scheduled weeks.</p></div>`;
 
+            // Routine Fat Bar
             if (routines.length > 0) {
                 const routine = routines[0];
                 const weekStart = getWeekStart(new Date(routine.date));
@@ -2329,24 +2419,23 @@
             switchView('calendar');
         }
 
-        // --- Initial Load ---
-        // First check master status, then load events and render
-        (async function init() {
-            await checkMasterStatus();
-            switchView('calendar');
-            await loadEvents();
+        // --- Initial Load (Non‑blocking, shows empty UI first) ---
+        switchView('calendar'); // Render immediately with empty events
+        loadEvents().then(() => {
+            // Once events are loaded, refresh the view so they appear
             if (activeView === 'calendar') render();
             else renderDashboard();
-        })();
+        });
 
-        // Modal close on outside click
         document.getElementById('eventModal').addEventListener('click', function(e) { if (e.target === this)
             closeModal(); });
         document.getElementById('routineModal').addEventListener('click', function(e) { if (e.target === this)
                 closeRoutineModal(); });
+        document.getElementById('loginModal').addEventListener('click', function(e) { if (e.target === this)
+            closeLoginModal(); });
     </script>
 
-    <!-- INTRO ANIMATION (unchanged) -->
+    <!-- INTRO ANIMATION (unchanged from original, minus the #dashboard-view line) -->
     <script type="module">
         (async () => {
             let THREE;
@@ -2704,6 +2793,7 @@
                     fadeStarted = true;
                     introOverlay.style.opacity = '0';
                     introOverlay.style.pointerEvents = 'none';
+                    // No dashboard reveal needed here; the app is already visible behind
                 }
 
                 // Cloud physics (unchanged)
